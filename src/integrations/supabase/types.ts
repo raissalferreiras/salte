@@ -149,6 +149,13 @@ export type Database = {
             referencedRelation: "pessoas"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "atendimentos_psicologicos_pessoa_id_fkey"
+            columns: ["pessoa_id"]
+            isOneToOne: false
+            referencedRelation: "pessoas_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       cestas_basicas: {
@@ -239,6 +246,13 @@ export type Database = {
             referencedRelation: "pessoas"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "crianca_responsaveis_responsavel_id_fkey"
+            columns: ["responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "pessoas_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       criancas: {
@@ -287,6 +301,13 @@ export type Database = {
             columns: ["pessoa_id"]
             isOneToOne: true
             referencedRelation: "pessoas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "criancas_pessoa_id_fkey"
+            columns: ["pessoa_id"]
+            isOneToOne: true
+            referencedRelation: "pessoas_public"
             referencedColumns: ["id"]
           },
         ]
@@ -461,6 +482,13 @@ export type Database = {
             referencedRelation: "pessoas"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "evento_participantes_pessoa_id_fkey"
+            columns: ["pessoa_id"]
+            isOneToOne: false
+            referencedRelation: "pessoas_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       eventos: {
@@ -608,6 +636,13 @@ export type Database = {
             referencedRelation: "pessoas"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "familia_membros_pessoa_id_fkey"
+            columns: ["pessoa_id"]
+            isOneToOne: false
+            referencedRelation: "pessoas_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       familias: {
@@ -680,6 +715,13 @@ export type Database = {
             columns: ["responsavel_id"]
             isOneToOne: false
             referencedRelation: "pessoas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "familias_responsavel_id_fkey"
+            columns: ["responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "pessoas_public"
             referencedColumns: ["id"]
           },
         ]
@@ -897,6 +939,13 @@ export type Database = {
             referencedRelation: "pessoas"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pessoa_frentes_pessoa_id_fkey"
+            columns: ["pessoa_id"]
+            isOneToOne: false
+            referencedRelation: "pessoas_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pessoas: {
@@ -1017,6 +1066,13 @@ export type Database = {
             columns: ["pessoa_id"]
             isOneToOne: false
             referencedRelation: "pessoas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "presencas_pessoa_id_fkey"
+            columns: ["pessoa_id"]
+            isOneToOne: false
+            referencedRelation: "pessoas_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1177,7 +1233,42 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pessoas_public: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          is_active: boolean | null
+          neighborhood: string | null
+          photo_url: string | null
+          state: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          neighborhood?: string | null
+          photo_url?: string | null
+          state?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          neighborhood?: string | null
+          photo_url?: string | null
+          state?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_roles: {
