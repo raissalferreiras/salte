@@ -24,6 +24,7 @@ import FrentePsicologicoPage from "./pages/FrentePsicologicoPage";
 import NovoAtendimentoPage from "./pages/NovoAtendimentoPage";
 import AtendimentoDetalhesPage from "./pages/AtendimentoDetalhesPage";
 import NovaVisitaPage from "./pages/NovaVisitaPage";
+import NovaPresencaPage from "./pages/NovaPresencaPage";
 import MapaPage from "./pages/MapaPage";
 import CalendarioPage from "./pages/CalendarioPage";
 import RelatoriosPage from "./pages/RelatoriosPage";
@@ -88,6 +89,7 @@ function AppRoutes() {
       <Route path="/atendimentos/novo" element={<ProtectedRoute><NovoAtendimentoPage /></ProtectedRoute>} />
       <Route path="/atendimentos/:id" element={<ProtectedRoute><AtendimentoDetalhesPage /></ProtectedRoute>} />
       <Route path="/visitas/novo" element={<ProtectedRoute><NovaVisitaPage /></ProtectedRoute>} />
+      <Route path="/presencas/novo" element={<ProtectedRoute><NovaPresencaPage /></ProtectedRoute>} />
       <Route path="/mapa" element={<ProtectedRoute><MapaPage /></ProtectedRoute>} />
       <Route path="/calendario" element={<ProtectedRoute><CalendarioPage /></ProtectedRoute>} />
       <Route path="/relatorios" element={<ProtectedRoute><RelatoriosPage /></ProtectedRoute>} />
