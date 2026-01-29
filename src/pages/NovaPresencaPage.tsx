@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -26,7 +27,7 @@ export default function NovaPresencaPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [criancas, setCriancas] = useState<Crianca[]>([]);
   const [presencas, setPresencas] = useState<Record<string, boolean>>({});
@@ -69,6 +70,7 @@ export default function NovaPresencaPage() {
         presente: presencas[c.pessoa.id] ?? false,
         observacoes: observacoes[c.pessoa.id] || null,
         comportamento: comportamentos[c.pessoa.id] || null,
+        registrado_por: user?.id || null,
       }));
 
       const { error } = await supabase.from("presencas").insert(registros);
