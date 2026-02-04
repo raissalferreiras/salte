@@ -8,10 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { format, differenceInYears } from 'date-fns';
+import { format, differenceInYears, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { School, Clock, AlertCircle, Pill, Trash2 } from 'lucide-react';
+import { School, Clock, AlertCircle, Pill, Trash2, Calendar, Check, X, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Crianca = Tables<'criancas'>;
@@ -21,17 +22,26 @@ interface CriancaWithPessoa extends Crianca {
   pessoa?: Pessoa;
 }
 
+interface Presenca {
+  id: string;
+  data: string;
+  presente: boolean | null;
+  observacoes: string | null;
+  comportamento: string | null;
+}
+
 export default function CriancaDetalhesPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [crianca, setCrianca] = useState<CriancaWithPessoa | null>(null);
+  const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchCrianca() {
+    async function fetchData() {
       if (!id) return;
       
-      const { data, error } = await supabase
+      const { data: criancaData, error } = await supabase
         .from('criancas')
         .select('*, pessoa:pessoas!criancas_pessoa_id_fkey(*)')
         .eq('id', id)
@@ -43,11 +53,25 @@ export default function CriancaDetalhesPage() {
         return;
       }
 
-      setCrianca(data);
+      setCrianca(criancaData);
+
+      // Fetch attendance history (last 3 months)
+      if (criancaData?.pessoa_id) {
+        const threeMonthsAgo = format(subMonths(new Date(), 3), 'yyyy-MM-dd');
+        const { data: presencasData } = await supabase
+          .from('presencas')
+          .select('id, data, presente, observacoes, comportamento')
+          .eq('pessoa_id', criancaData.pessoa_id)
+          .gte('data', threeMonthsAgo)
+          .order('data', { ascending: false });
+
+        setPresencas(presencasData || []);
+      }
+
       setIsLoading(false);
     }
 
-    fetchCrianca();
+    fetchData();
   }, [id, navigate]);
 
   const handleDelete = async () => {
@@ -102,6 +126,12 @@ export default function CriancaDetalhesPage() {
   }
 
   const age = getAge();
+
+  // Calculate attendance stats
+  const totalPresencas = presencas.filter(p => p.presente).length;
+  const totalAusencias = presencas.filter(p => p.presente === false).length;
+  const totalRegistros = presencas.length;
+  const frequencia = totalRegistros > 0 ? Math.round((totalPresencas / totalRegistros) * 100) : 0;
 
   return (
     <AppLayout>
@@ -211,6 +241,100 @@ export default function CriancaDetalhesPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Attendance Stats Card */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Frequência (últimos 3 meses)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {presencas.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhuma presença registrada</p>
+            ) : (
+              <div className="space-y-4">
+                {/* Stats Row */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
+                    <div className="flex items-center justify-center gap-1 text-green-600 dark:text-green-400">
+                      <Check className="h-4 w-4" />
+                      <span className="text-xl font-bold">{totalPresencas}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Presenças</p>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-red-50 dark:bg-red-900/20">
+                    <div className="flex items-center justify-center gap-1 text-red-600 dark:text-red-400">
+                      <X className="h-4 w-4" />
+                      <span className="text-xl font-bold">{totalAusencias}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Ausências</p>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-primary/10">
+                    <div className="flex items-center justify-center gap-1 text-primary">
+                      <TrendingUp className="h-4 w-4" />
+                      <span className="text-xl font-bold">{frequencia}%</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Frequência</p>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div>
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    <span>Taxa de presença</span>
+                    <span>{frequencia}%</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={cn(
+                        "h-full rounded-full transition-all",
+                        frequencia >= 75 && "bg-green-500",
+                        frequencia >= 50 && frequencia < 75 && "bg-yellow-500",
+                        frequencia < 50 && "bg-red-500"
+                      )}
+                      style={{ width: `${frequencia}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Recent History */}
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-2">HISTÓRICO RECENTE</p>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {presencas.slice(0, 10).map((p) => (
+                      <div key={p.id} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
+                        <div className="flex items-center gap-2">
+                          <div className={cn(
+                            "w-2 h-2 rounded-full",
+                            p.presente ? "bg-green-500" : "bg-red-500"
+                          )} />
+                          <span className="text-sm">
+                            {format(new Date(p.data), "dd/MM/yyyy", { locale: ptBR })}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {p.comportamento && (
+                            <Badge variant="outline" className="text-xs">
+                              {p.comportamento === 'otimo' ? 'Ótimo' : 
+                               p.comportamento === 'bom' ? 'Bom' : 
+                               p.comportamento === 'regular' ? 'Regular' : 
+                               p.comportamento === 'ruim' ? 'Ruim' : p.comportamento}
+                            </Badge>
+                          )}
+                          <Badge variant={p.presente ? "secondary" : "destructive"} className="text-xs">
+                            {p.presente ? 'Presente' : 'Ausente'}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   );
