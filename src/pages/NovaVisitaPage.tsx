@@ -158,8 +158,9 @@ export default function NovaVisitaPage() {
             <Textarea
               value={formData.necessidades_identificadas}
               onChange={(e) => setFormData({ ...formData, necessidades_identificadas: e.target.value })}
-              placeholder="Liste as necessidades identificadas..."
+              placeholder="Informe as necessidades identificadas..."
               rows={3}
+              className="min-h-[100px] resize-y"
             />
           </div>
 
@@ -187,8 +188,9 @@ export default function NovaVisitaPage() {
               <Textarea
                 value={formData.cesta_itens}
                 onChange={(e) => setFormData({ ...formData, cesta_itens: e.target.value })}
-                placeholder="Liste os itens entregues..."
+                placeholder="Informe os itens entregues..."
                 rows={2}
+                className="min-h-[80px] resize-y"
               />
             </div>
           )}
