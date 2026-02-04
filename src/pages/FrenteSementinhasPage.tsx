@@ -81,6 +81,19 @@ export default function FrenteSementinhasPage() {
             </div>
           </button>
           <button
+            onClick={() => navigate('/presencas/dashboard')}
+            className="flex items-center gap-3 p-4 rounded-2xl bg-chart-2/10 border border-chart-2/20 hover:shadow-md transition-all"
+          >
+            <Calendar className="h-6 w-6 text-chart-2" />
+            <div className="text-left">
+              <p className="font-medium text-chart-2">Dashboard</p>
+              <p className="text-xs text-muted-foreground">Ver estatísticas</p>
+            </div>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <button
             onClick={() => navigate('/criancas')}
             className="flex items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/20 hover:shadow-md transition-all"
           >
