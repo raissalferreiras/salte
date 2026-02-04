@@ -10,11 +10,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useActivityLog } from '@/hooks/useActivityLog';
+import { maskCPF, maskCEP, maskPhone, validateFullName, validateBirthDate } from '@/lib/masks';
 
 export default function NovaPessoaPage() {
   const navigate = useNavigate();
   const { logActivity } = useActivityLog();
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -26,23 +28,58 @@ export default function NovaPessoaPage() {
     address: '',
     address_number: '',
     address_complement: '',
-    neighborhood: 'Favela Ventosa',
-    city: 'São Paulo',
-    state: 'SP',
+    neighborhood: '',
+    city: '',
+    state: '',
     zip_code: '',
     notes: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let maskedValue = value;
+    
+    // Apply masks
+    if (name === 'cpf') {
+      maskedValue = maskCPF(value);
+    } else if (name === 'zip_code') {
+      maskedValue = maskCEP(value);
+    } else if (name === 'phone' || name === 'phone_secondary') {
+      maskedValue = maskPhone(value);
+    }
+    
+    setFormData((prev) => ({ ...prev, [name]: maskedValue }));
+    
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    // Validate full name
+    const nameValidation = validateFullName(formData.full_name);
+    if (!nameValidation.valid) {
+      newErrors.full_name = nameValidation.message || 'Nome inválido';
+    }
+    
+    // Validate birth date
+    const birthValidation = validateBirthDate(formData.birth_date, 'adulto');
+    if (!birthValidation.valid) {
+      newErrors.birth_date = birthValidation.message || 'Data inválida';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.full_name.trim()) {
-      toast.error('Digite o nome completo');
+    if (!validateForm()) {
+      toast.error('Corrija os erros no formulário');
       return;
     }
 
@@ -61,9 +98,9 @@ export default function NovaPessoaPage() {
           address: formData.address || null,
           address_number: formData.address_number || null,
           address_complement: formData.address_complement || null,
-          neighborhood: formData.neighborhood || null,
-          city: formData.city,
-          state: formData.state,
+          neighborhood: formData.neighborhood || 'Favela Ventosa',
+          city: formData.city || 'São Paulo',
+          state: formData.state || 'SP',
           zip_code: formData.zip_code || null,
           notes: formData.notes || null,
         })
@@ -102,10 +139,13 @@ export default function NovaPessoaPage() {
               name="full_name"
               value={formData.full_name}
               onChange={handleChange}
-              placeholder="Nome completo"
-              className="h-11 rounded-xl"
+              placeholder="Nome e sobrenome"
+              className={`h-11 rounded-xl ${errors.full_name ? 'border-destructive' : ''}`}
               required
             />
+            {errors.full_name && (
+              <p className="text-xs text-destructive">{errors.full_name}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -117,8 +157,11 @@ export default function NovaPessoaPage() {
                 type="date"
                 value={formData.birth_date}
                 onChange={handleChange}
-                className="h-11 rounded-xl"
+                className={`h-11 rounded-xl ${errors.birth_date ? 'border-destructive' : ''}`}
               />
+              {errors.birth_date && (
+                <p className="text-xs text-destructive">{errors.birth_date}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="cpf">CPF</Label>
@@ -128,6 +171,7 @@ export default function NovaPessoaPage() {
                 value={formData.cpf}
                 onChange={handleChange}
                 placeholder="000.000.000-00"
+                maxLength={14}
                 className="h-11 rounded-xl"
               />
             </div>
@@ -261,6 +305,7 @@ export default function NovaPessoaPage() {
               value={formData.zip_code}
               onChange={handleChange}
               placeholder="00000-000"
+              maxLength={9}
               className="h-11 rounded-xl"
             />
           </div>

@@ -78,7 +78,7 @@ export default function NovaPresencaPage() {
       if (error) throw error;
 
       toast({ title: "Presenças registradas com sucesso!" });
-      navigate(-1);
+      navigate('/frentes/sementinhas');
     } catch (error: any) {
       toast({
         title: "Erro ao registrar presenças",
