@@ -48,15 +48,18 @@ export default function NovaPresencaPage() {
   const fetchCriancas = async () => {
     const { data, error } = await supabase
       .from("criancas")
-      .select("*, pessoa:pessoas!criancas_pessoa_id_fkey(*)")
-      .order("created_at", { ascending: true });
+      .select("*, pessoa:pessoas!criancas_pessoa_id_fkey(*)");
 
     if (error) {
       toast({ title: "Erro ao carregar crianças", variant: "destructive" });
       return;
     }
 
-    setCriancas(data || []);
+    // Sort alphabetically by name
+    const sorted = (data || []).sort((a, b) => 
+      (a.pessoa?.full_name || "").localeCompare(b.pessoa?.full_name || "", "pt-BR")
+    );
+    setCriancas(sorted);
   };
 
   const fetchPresencasExistentes = async () => {
