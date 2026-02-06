@@ -8,11 +8,10 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save, Users } from "lucide-react";
+import { Save, Users, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 
 interface Crianca {
@@ -34,10 +33,17 @@ export default function NovaPresencaPage() {
   const [observacoes, setObservacoes] = useState<Record<string, string>>({});
   const [comportamentos, setComportamentos] = useState<Record<string, string>>({});
   const [data, setData] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [presencasExistentes, setPresencasExistentes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchCriancas();
   }, []);
+
+  useEffect(() => {
+    if (criancas.length > 0) {
+      fetchPresencasExistentes();
+    }
+  }, [data, criancas]);
 
   const fetchCriancas = async () => {
     const { data, error } = await supabase
@@ -51,20 +57,56 @@ export default function NovaPresencaPage() {
     }
 
     setCriancas(data || []);
+  };
+
+  const fetchPresencasExistentes = async () => {
+    const pessoaIds = criancas.map((c) => c.pessoa.id);
     
-    // Initialize all as present
+    const { data: existentes, error } = await supabase
+      .from("presencas")
+      .select("pessoa_id")
+      .eq("data", data)
+      .in("pessoa_id", pessoaIds);
+
+    if (error) {
+      console.error("Erro ao verificar presenças existentes:", error);
+      return;
+    }
+
+    const existentesSet = new Set(existentes?.map((p) => p.pessoa_id) || []);
+    setPresencasExistentes(existentesSet);
+
+    // Initialize presences only for children without existing attendance
     const initialPresencas: Record<string, boolean> = {};
-    data?.forEach((c) => {
-      initialPresencas[c.pessoa.id] = true;
+    criancas.forEach((c) => {
+      if (!existentesSet.has(c.pessoa.id)) {
+        initialPresencas[c.pessoa.id] = true;
+      }
     });
     setPresencas(initialPresencas);
+    setObservacoes({});
+    setComportamentos({});
   };
 
   const handleSubmit = async () => {
+    // Filter only children without existing attendance
+    const criancasSemPresenca = criancas.filter(
+      (c) => !presencasExistentes.has(c.pessoa.id)
+    );
+
+    if (criancasSemPresenca.length === 0) {
+      toast({
+        title: "Nenhuma presença para registrar",
+        description: "Todas as crianças já têm presença registrada para esta data.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const registros = criancas.map((c) => ({
+      const registros = criancasSemPresenca.map((c) => ({
         pessoa_id: c.pessoa.id,
         data,
         presente: presencas[c.pessoa.id] ?? false,
@@ -90,8 +132,11 @@ export default function NovaPresencaPage() {
     }
   };
 
+  const criancasSemPresenca = criancas.filter(
+    (c) => !presencasExistentes.has(c.pessoa.id)
+  );
   const presentCount = Object.values(presencas).filter(Boolean).length;
-  const totalCount = criancas.length;
+  const totalCount = criancasSemPresenca.length;
 
   return (
     <AppLayout>
@@ -114,13 +159,49 @@ export default function NovaPresencaPage() {
               <Users className="h-4 w-4" />
               <span>
                 {presentCount} de {totalCount} presentes
+                {presencasExistentes.size > 0 && (
+                  <span className="text-chart-1 ml-1">
+                    ({presencasExistentes.size} já registradas)
+                  </span>
+                )}
               </span>
             </div>
           </CardContent>
         </Card>
 
+        {/* Children with existing attendance */}
+        {presencasExistentes.size > 0 && (
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-chart-1" />
+              Presenças já registradas hoje
+            </p>
+            {criancas
+              .filter((c) => presencasExistentes.has(c.pessoa.id))
+              .map((crianca) => (
+                <Card key={crianca.id} className="opacity-60">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{crianca.pessoa.full_name}</span>
+                      <span className="text-xs px-2 py-1 rounded-full bg-chart-1/10 text-chart-1">
+                        Já registrada
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
+        )}
+
+        {/* Children without attendance - can register */}
         <div className="space-y-3">
-          {criancas.map((crianca) => (
+          {criancasSemPresenca.length > 0 && presencasExistentes.size > 0 && (
+            <p className="text-sm font-medium text-muted-foreground">
+              Crianças pendentes
+            </p>
+          )}
+          
+          {criancasSemPresenca.map((crianca) => (
             <Card key={crianca.id}>
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
@@ -187,11 +268,22 @@ export default function NovaPresencaPage() {
               Nenhuma criança cadastrada
             </div>
           )}
+
+          {criancas.length > 0 && criancasSemPresenca.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <CheckCircle className="h-12 w-12 mx-auto mb-2 text-chart-1" />
+              Todas as crianças já têm presença registrada para esta data
+            </div>
+          )}
         </div>
       </div>
 
       <div className="fixed bottom-20 left-0 right-0 p-4 bg-background border-t">
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
+        <Button 
+          onClick={handleSubmit} 
+          disabled={loading || criancasSemPresenca.length === 0} 
+          className="w-full"
+        >
           <Save className="h-4 w-4 mr-2" />
           {loading ? "Salvando..." : "Salvar Presenças"}
         </Button>
