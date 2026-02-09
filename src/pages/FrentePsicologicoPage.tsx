@@ -20,13 +20,13 @@ interface AtendimentoWithPessoa extends AtendimentoPsicologico {
 
 export default function FrentePsicologicoPage() {
   const navigate = useNavigate();
-  const { user, isPsicologa, hasRole } = useAuth();
+  const { user, isPsicologa, isAdminOrCoordinator } = useAuth();
   const [atendimentos, setAtendimentos] = useState<AtendimentoWithPessoa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   // Check access
-  const hasAccess = isPsicologa || hasRole('admin');
+  const hasAccess = isPsicologa || isAdminOrCoordinator;
 
   useEffect(() => {
     if (!hasAccess) {
