@@ -85,7 +85,7 @@ export default function DashboardPage() {
     <AppLayout>
       <PageHeader title="" large />
 
-      <div className="px-4 pb-6">
+      <div className="px-4 pb-6 max-w-4xl mx-auto md:px-6 md:py-6">
         {/* Welcome section */}
         <div className="mb-6">
           <div className="flex items-center gap-4">
