@@ -103,6 +103,38 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Frentes section */}
+        <SectionHeader title="Frentes de Atuação" className="mt-6" />
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => navigate('/frentes/sementinhas')}
+            className="flex flex-col items-center p-4 rounded-2xl bg-card border border-border/50 hover:shadow-md transition-all"
+          >
+            <div className="w-12 h-12 rounded-full bg-chart-1/20 flex items-center justify-center mb-2">
+              <Baby className="h-6 w-6 text-chart-1" />
+            </div>
+            <span className="text-sm font-medium text-center">Sementinhas</span>
+          </button>
+          <button
+            onClick={() => navigate('/frentes/historias')}
+            className="flex flex-col items-center p-4 rounded-2xl bg-card border border-border/50 hover:shadow-md transition-all"
+          >
+            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-2">
+              <Home className="h-6 w-6 text-primary" />
+            </div>
+            <span className="text-sm font-medium text-center">Histórias</span>
+          </button>
+          <button
+            onClick={() => navigate('/frentes/psicologico')}
+            className="flex flex-col items-center p-4 rounded-2xl bg-card border border-border/50 hover:shadow-md transition-all"
+          >
+            <div className="w-12 h-12 rounded-full bg-chart-3/20 flex items-center justify-center mb-2">
+              <Brain className="h-6 w-6 text-chart-3" />
+            </div>
+            <span className="text-sm font-medium text-center">Psicológico</span>
+          </button>
+        </div>
+
         {/* Stats */}
         <SectionHeader title="Visão Geral" className="mt-6" />
         <div className="grid grid-cols-2 gap-3">
@@ -230,38 +262,6 @@ export default function DashboardPage() {
               </button>
             ))
           )}
-        </div>
-
-        {/* Frentes section */}
-        <SectionHeader title="Frentes de Atuação" className="mt-6" />
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            onClick={() => navigate('/frentes/sementinhas')}
-            className="flex flex-col items-center p-4 rounded-2xl bg-card border border-border/50 hover:shadow-md transition-all"
-          >
-            <div className="w-12 h-12 rounded-full bg-chart-1/20 flex items-center justify-center mb-2">
-              <Baby className="h-6 w-6 text-chart-1" />
-            </div>
-            <span className="text-sm font-medium text-center">Sementinhas</span>
-          </button>
-          <button
-            onClick={() => navigate('/frentes/historias')}
-            className="flex flex-col items-center p-4 rounded-2xl bg-card border border-border/50 hover:shadow-md transition-all"
-          >
-            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-2">
-              <Home className="h-6 w-6 text-primary" />
-            </div>
-            <span className="text-sm font-medium text-center">Histórias</span>
-          </button>
-          <button
-            onClick={() => navigate('/frentes/psicologico')}
-            className="flex flex-col items-center p-4 rounded-2xl bg-card border border-border/50 hover:shadow-md transition-all"
-          >
-            <div className="w-12 h-12 rounded-full bg-chart-3/20 flex items-center justify-center mb-2">
-              <Brain className="h-6 w-6 text-chart-3" />
-            </div>
-            <span className="text-sm font-medium text-center">Psicológico</span>
-          </button>
         </div>
       </div>
     </AppLayout>
