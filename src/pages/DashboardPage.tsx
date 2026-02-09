@@ -85,7 +85,7 @@ export default function DashboardPage() {
     <AppLayout>
       <PageHeader title="" large />
 
-      <div className="px-4 pb-6 max-w-4xl mx-auto md:px-6 md:py-6">
+      <div className="px-4 pb-6 md:px-8 md:py-6 lg:px-12">
         {/* Welcome section */}
         <div className="mb-6">
           <div className="flex items-center gap-4">
@@ -97,7 +97,7 @@ export default function DashboardPage() {
             </Avatar>
             <div>
               <p className="text-muted-foreground text-sm">{greeting()},</p>
-              <h1 className="text-xl font-bold">{profile?.full_name?.split(' ')[0] || 'Usuário'}</h1>
+              <h1 className="text-xl md:text-2xl font-bold">{profile?.full_name?.split(' ')[0] || 'Usuário'}</h1>
               <p className="text-xs text-muted-foreground">{getRoleLabel()}</p>
             </div>
           </div>
@@ -135,133 +135,142 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Stats */}
-        <SectionHeader title="Visão Geral" className="mt-6" />
-        <div className="grid grid-cols-2 gap-3">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-28 rounded-2xl" />
-              <Skeleton className="h-28 rounded-2xl" />
-              <Skeleton className="h-28 rounded-2xl" />
-              <Skeleton className="h-28 rounded-2xl" />
-            </>
-          ) : (
-            <>
-              <StatCard
-                title="Crianças"
-                value={data?.totalCriancas || 0}
-                icon={Baby}
-                color="success"
-                onClick={() => navigate('/criancas')}
-              />
-              <StatCard
-                title="Famílias"
-                value={data?.totalFamilias || 0}
-                icon={Home}
-                color="primary"
-                onClick={() => navigate('/familias')}
-              />
-              <StatCard
-                title="Pessoas"
-                value={data?.totalPessoas || 0}
-                icon={Users}
-                color="warning"
-                onClick={() => navigate('/pessoas')}
-              />
-              <StatCard
-                title="Visitas (mês)"
-                value={data?.visitasMes || 0}
-                icon={MapPin}
-                color="danger"
-                onClick={() => navigate('/visitas')}
-              />
-            </>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        <SectionHeader title="Ações Rápidas" className="mt-6" />
-        <div className="space-y-3">
-          <QuickAction
-            title="Nova Pessoa"
-            description="Cadastrar pessoa no sistema"
-            icon={UserPlus}
-            path="/pessoas/novo"
-            color="#10B981"
-          />
-          <QuickAction
-            title="Registrar Presença"
-            description="Sementinhas - presença em ação"
-            icon={ClipboardList}
-            path="/presencas/novo"
-            color="#3B82F6"
-          />
-          <QuickAction
-            title="Nova Visita"
-            description="Conhecendo Histórias - visitar família"
-            icon={Home}
-            path="/visitas/novo"
-            color="#8B5CF6"
-          />
-          {isPsicologa && (
-            <QuickAction
-              title="Novo Atendimento"
-              description="Registrar atendimento psicológico"
-              icon={Brain}
-              path="/atendimentos/novo"
-              color="#EC4899"
-            />
-          )}
-        </div>
-
-        {/* Próximos eventos */}
-        <SectionHeader
-          title="Próximos Eventos"
-          action={{ label: 'Ver todos', path: '/calendario' }}
-          className="mt-6"
-        />
-        <div className="space-y-2">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-16 rounded-xl" />
-              <Skeleton className="h-16 rounded-xl" />
-            </>
-          ) : data?.proximosEventos.length === 0 ? (
-            <div className="bg-card rounded-xl p-4 text-center text-muted-foreground border border-border/50">
-              <p className="text-sm">Nenhum evento agendado</p>
-              <Button
-                variant="link"
-                size="sm"
-                onClick={() => navigate('/calendario')}
-                className="mt-1"
-              >
-                Criar evento
-              </Button>
+        {/* Desktop two-column layout */}
+        <div className="md:grid md:grid-cols-2 md:gap-8">
+          {/* Left column */}
+          <div>
+            {/* Stats */}
+            <SectionHeader title="Visão Geral" className="mt-6" />
+            <div className="grid grid-cols-2 gap-3">
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-28 rounded-2xl" />
+                  <Skeleton className="h-28 rounded-2xl" />
+                  <Skeleton className="h-28 rounded-2xl" />
+                  <Skeleton className="h-28 rounded-2xl" />
+                </>
+              ) : (
+                <>
+                  <StatCard
+                    title="Crianças"
+                    value={data?.totalCriancas || 0}
+                    icon={Baby}
+                    color="success"
+                    onClick={() => navigate('/criancas')}
+                  />
+                  <StatCard
+                    title="Famílias"
+                    value={data?.totalFamilias || 0}
+                    icon={Home}
+                    color="primary"
+                    onClick={() => navigate('/familias')}
+                  />
+                  <StatCard
+                    title="Pessoas"
+                    value={data?.totalPessoas || 0}
+                    icon={Users}
+                    color="warning"
+                    onClick={() => navigate('/pessoas')}
+                  />
+                  <StatCard
+                    title="Visitas (mês)"
+                    value={data?.visitasMes || 0}
+                    icon={MapPin}
+                    color="danger"
+                    onClick={() => navigate('/visitas')}
+                  />
+                </>
+              )}
             </div>
-          ) : (
-            data?.proximosEventos.map((evento) => (
-              <button
-                key={evento.id}
-                onClick={() => navigate(`/eventos/${evento.id}`)}
-                className="w-full flex items-center gap-4 p-3 rounded-xl bg-card border border-border/50 hover:shadow-sm transition-all"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center">
-                  <span className="text-xs font-medium text-primary">
-                    {format(new Date(evento.data_inicio), 'MMM', { locale: ptBR }).toUpperCase()}
-                  </span>
-                  <span className="text-lg font-bold text-primary">
-                    {format(new Date(evento.data_inicio), 'd')}
-                  </span>
+
+            {/* Próximos eventos */}
+            <SectionHeader
+              title="Próximos Eventos"
+              action={{ label: 'Ver todos', path: '/calendario' }}
+              className="mt-6"
+            />
+            <div className="space-y-2">
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-16 rounded-xl" />
+                  <Skeleton className="h-16 rounded-xl" />
+                </>
+              ) : data?.proximosEventos.length === 0 ? (
+                <div className="bg-card rounded-xl p-4 text-center text-muted-foreground border border-border/50">
+                  <p className="text-sm">Nenhum evento agendado</p>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => navigate('/calendario')}
+                    className="mt-1"
+                  >
+                    Criar evento
+                  </Button>
                 </div>
-                <div className="flex-1 text-left">
-                  <p className="font-medium">{evento.titulo}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {format(new Date(evento.data_inicio), "HH:mm", { locale: ptBR })}
-                  </p>
-                </div>
-              </button>
-            ))
-          )}
+              ) : (
+                data?.proximosEventos.map((evento) => (
+                  <button
+                    key={evento.id}
+                    onClick={() => navigate(`/eventos/${evento.id}`)}
+                    className="w-full flex items-center gap-4 p-3 rounded-xl bg-card border border-border/50 hover:shadow-sm transition-all"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center">
+                      <span className="text-xs font-medium text-primary">
+                        {format(new Date(evento.data_inicio), 'MMM', { locale: ptBR }).toUpperCase()}
+                      </span>
+                      <span className="text-lg font-bold text-primary">
+                        {format(new Date(evento.data_inicio), 'd')}
+                      </span>
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="font-medium">{evento.titulo}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(evento.data_inicio), "HH:mm", { locale: ptBR })}
+                      </p>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Right column */}
+          <div>
+            {/* Quick Actions */}
+            <SectionHeader title="Ações Rápidas" className="mt-6" />
+            <div className="space-y-3">
+              <QuickAction
+                title="Nova Pessoa"
+                description="Cadastrar pessoa no sistema"
+                icon={UserPlus}
+                path="/pessoas/novo"
+                color="#10B981"
+              />
+              <QuickAction
+                title="Registrar Presença"
+                description="Sementinhas - presença em ação"
+                icon={ClipboardList}
+                path="/presencas/novo"
+                color="#3B82F6"
+              />
+              <QuickAction
+                title="Nova Visita"
+                description="Conhecendo Histórias - visitar família"
+                icon={Home}
+                path="/visitas/novo"
+                color="#8B5CF6"
+              />
+              {isPsicologa && (
+                <QuickAction
+                  title="Novo Atendimento"
+                  description="Registrar atendimento psicológico"
+                  icon={Brain}
+                  path="/atendimentos/novo"
+                  color="#EC4899"
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </AppLayout>
