@@ -262,6 +262,7 @@ export type Database = {
           descricao_necessidades: string | null
           escola: string | null
           id: string
+          is_active: boolean
           medicamentos: string | null
           necessidades_especiais: boolean | null
           pessoa_id: string
@@ -275,6 +276,7 @@ export type Database = {
           descricao_necessidades?: string | null
           escola?: string | null
           id?: string
+          is_active?: boolean
           medicamentos?: string | null
           necessidades_especiais?: boolean | null
           pessoa_id: string
@@ -288,6 +290,7 @@ export type Database = {
           descricao_necessidades?: string | null
           escola?: string | null
           id?: string
+          is_active?: boolean
           medicamentos?: string | null
           necessidades_especiais?: boolean | null
           pessoa_id?: string

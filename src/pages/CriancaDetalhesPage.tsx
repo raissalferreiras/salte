@@ -8,12 +8,24 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { format, differenceInYears, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { School, Clock, AlertCircle, Pill, Trash2, Calendar, Check, X, TrendingUp } from 'lucide-react';
+import { School, Clock, AlertCircle, Pill, Trash2, Calendar, Check, X, TrendingUp, Pencil, Power } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { Tables } from '@/integrations/supabase/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 type Crianca = Tables<'criancas'>;
 type PessoaPublic = Tables<'pessoas_public'>;
@@ -33,9 +45,11 @@ interface Presenca {
 export default function CriancaDetalhesPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isAdminOrCoordinator } = useAuth();
   const [crianca, setCrianca] = useState<CriancaWithPessoa | null>(null);
   const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isToggling, setIsToggling] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -75,7 +89,7 @@ export default function CriancaDetalhesPage() {
   }, [id, navigate]);
 
   const handleDelete = async () => {
-    if (!crianca || !confirm('Tem certeza que deseja excluir esta criança?')) return;
+    if (!crianca) return;
 
     const { error } = await supabase
       .from('criancas')
@@ -91,6 +105,27 @@ export default function CriancaDetalhesPage() {
     navigate('/criancas');
   };
 
+  const handleToggleActive = async () => {
+    if (!crianca) return;
+    setIsToggling(true);
+
+    const newStatus = !crianca.is_active;
+    const { error } = await supabase
+      .from('criancas')
+      .update({ is_active: newStatus })
+      .eq('id', crianca.id);
+
+    setIsToggling(false);
+
+    if (error) {
+      toast.error('Erro ao alterar status');
+      return;
+    }
+
+    setCrianca({ ...crianca, is_active: newStatus });
+    toast.success(newStatus ? 'Criança reativada!' : 'Criança desativada!');
+  };
+
   const getAge = () => {
     if (!crianca?.pessoa?.birth_date) return null;
     return differenceInYears(new Date(), new Date(crianca.pessoa.birth_date));
@@ -98,14 +133,10 @@ export default function CriancaDetalhesPage() {
 
   const getTurnoLabel = (turno: string | null) => {
     switch (turno) {
-      case 'manha':
-        return 'Manhã';
-      case 'tarde':
-        return 'Tarde';
-      case 'integral':
-        return 'Integral';
-      default:
-        return turno;
+      case 'manha': return 'Manhã';
+      case 'tarde': return 'Tarde';
+      case 'integral': return 'Integral';
+      default: return turno;
     }
   };
 
@@ -121,13 +152,9 @@ export default function CriancaDetalhesPage() {
     );
   }
 
-  if (!crianca) {
-    return null;
-  }
+  if (!crianca) return null;
 
   const age = getAge();
-
-  // Calculate attendance stats
   const totalPresencas = presencas.filter(p => p.presente).length;
   const totalAusencias = presencas.filter(p => p.presente === false).length;
   const totalRegistros = presencas.length;
@@ -139,13 +166,46 @@ export default function CriancaDetalhesPage() {
         title="Detalhes" 
         showBack
         rightContent={
-          <Button size="icon" variant="outline" onClick={handleDelete} className="h-9 w-9">
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          isAdminOrCoordinator ? (
+            <div className="flex items-center gap-1">
+              <Button size="icon" variant="outline" onClick={() => navigate(`/criancas/${id}/editar`)} className="h-9 w-9">
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="icon" variant="outline" className="h-9 w-9">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir criança?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação não pode ser desfeita. Todos os dados desta criança serão removidos permanentemente.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          ) : undefined
         }
       />
 
       <div className="px-4 pb-24 space-y-4">
+        {/* Inactive banner */}
+        {!crianca.is_active && (
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm font-medium">
+            <Power className="h-4 w-4" />
+            Esta criança está desativada e não aparece nas listagens de presença.
+          </div>
+        )}
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -155,8 +215,13 @@ export default function CriancaDetalhesPage() {
                   {crianca.pessoa?.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h2 className="text-xl font-semibold">{crianca.pessoa?.full_name}</h2>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-semibold">{crianca.pessoa?.full_name}</h2>
+                  {!crianca.is_active && (
+                    <Badge variant="destructive" className="text-xs">Inativa</Badge>
+                  )}
+                </div>
                 {age !== null && (
                   <p className="text-muted-foreground">{age} anos</p>
                 )}
@@ -170,6 +235,31 @@ export default function CriancaDetalhesPage() {
           </CardContent>
         </Card>
 
+        {/* Activate / Deactivate */}
+        {isAdminOrCoordinator && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Status da criança</p>
+                  <p className="text-sm text-muted-foreground">
+                    {crianca.is_active ? 'Criança ativa no sistema' : 'Criança desativada'}
+                  </p>
+                </div>
+                <Button
+                  variant={crianca.is_active ? 'outline' : 'default'}
+                  size="sm"
+                  onClick={handleToggleActive}
+                  disabled={isToggling}
+                >
+                  <Power className="h-4 w-4 mr-1" />
+                  {crianca.is_active ? 'Desativar' : 'Reativar'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {(crianca.escola || crianca.serie || crianca.turno) && (
           <Card>
             <CardHeader className="pb-2">
@@ -179,13 +269,9 @@ export default function CriancaDetalhesPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {crianca.escola && (
-                <p className="text-sm">{crianca.escola}</p>
-              )}
+              {crianca.escola && <p className="text-sm">{crianca.escola}</p>}
               <div className="flex gap-2">
-                {crianca.serie && (
-                  <Badge variant="secondary">{crianca.serie}</Badge>
-                )}
+                {crianca.serie && <Badge variant="secondary">{crianca.serie}</Badge>}
                 {crianca.turno && (
                   <Badge variant="outline" className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -206,9 +292,7 @@ export default function CriancaDetalhesPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {crianca.alergias}
-              </p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{crianca.alergias}</p>
             </CardContent>
           </Card>
         )}
@@ -222,9 +306,7 @@ export default function CriancaDetalhesPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {crianca.medicamentos}
-              </p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{crianca.medicamentos}</p>
             </CardContent>
           </Card>
         )}
@@ -235,14 +317,12 @@ export default function CriancaDetalhesPage() {
               <CardTitle className="text-base">Necessidades Especiais</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {crianca.descricao_necessidades}
-              </p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{crianca.descricao_necessidades}</p>
             </CardContent>
           </Card>
         )}
 
-        {/* Attendance Stats Card */}
+        {/* Attendance Stats */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
@@ -255,7 +335,6 @@ export default function CriancaDetalhesPage() {
               <p className="text-sm text-muted-foreground">Nenhuma presença registrada</p>
             ) : (
               <div className="space-y-4">
-                {/* Stats Row */}
                 <div className="grid grid-cols-3 gap-2">
                   <div className="text-center p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
                     <div className="flex items-center justify-center gap-1 text-green-600 dark:text-green-400">
@@ -280,7 +359,6 @@ export default function CriancaDetalhesPage() {
                   </div>
                 </div>
 
-                {/* Progress Bar */}
                 <div>
                   <div className="flex justify-between text-xs text-muted-foreground mb-1">
                     <span>Taxa de presença</span>
@@ -299,17 +377,13 @@ export default function CriancaDetalhesPage() {
                   </div>
                 </div>
 
-                {/* Recent History */}
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-2">HISTÓRICO RECENTE</p>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {presencas.slice(0, 10).map((p) => (
                       <div key={p.id} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
                         <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "w-2 h-2 rounded-full",
-                            p.presente ? "bg-green-500" : "bg-red-500"
-                          )} />
+                          <div className={cn("w-2 h-2 rounded-full", p.presente ? "bg-green-500" : "bg-red-500")} />
                           <span className="text-sm">
                             {format(new Date(p.data), "dd/MM/yyyy", { locale: ptBR })}
                           </span>

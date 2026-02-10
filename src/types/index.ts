@@ -100,6 +100,7 @@ export interface Crianca {
   descricao_necessidades?: string;
   alergias?: string;
   medicamentos?: string;
+  is_active: boolean;
   responsaveis?: Pessoa[];
   created_at: string;
   updated_at: string;

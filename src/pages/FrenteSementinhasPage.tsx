@@ -31,6 +31,7 @@ export default function FrenteSementinhasPage() {
           supabase
             .from('criancas')
             .select(`*, pessoa:pessoas_public!criancas_pessoa_id_fkey(*)`)
+            .eq('is_active', true)
             .order('created_at', { ascending: false }),
           supabase
             .from('presencas')

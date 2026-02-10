@@ -31,6 +31,7 @@ export default function CriancasPage() {
             *,
             pessoa:pessoas_public!criancas_pessoa_id_fkey(*)
           `)
+          .eq('is_active', true)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
