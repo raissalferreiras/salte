@@ -170,6 +170,15 @@ export default function NovaCriancaPage() {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label>Nome do Responsável</Label>
+                <Input
+                  value={formData.nome_responsavel}
+                  onChange={(e) => setFormData({ ...formData, nome_responsavel: e.target.value })}
+                  placeholder="Nome do responsável pela criança"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Data de Nascimento</Label>
@@ -222,15 +231,6 @@ export default function NovaCriancaPage() {
               value={formData.escola}
               onChange={(e) => setFormData({ ...formData, escola: e.target.value })}
               placeholder="Nome da escola"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Nome do Responsável</Label>
-            <Input
-              value={formData.nome_responsavel}
-              onChange={(e) => setFormData({ ...formData, nome_responsavel: e.target.value })}
-              placeholder="Nome do responsável pela criança"
             />
           </div>
 
