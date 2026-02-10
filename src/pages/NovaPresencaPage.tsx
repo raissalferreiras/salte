@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Save, Users, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 
@@ -19,6 +20,7 @@ interface Crianca {
   pessoa: {
     id: string;
     full_name: string;
+    photo_url: string | null;
   };
 }
 
@@ -48,7 +50,7 @@ export default function NovaPresencaPage() {
   const fetchCriancas = async () => {
     const { data, error } = await supabase
       .from("criancas")
-      .select("*, pessoa:pessoas!criancas_pessoa_id_fkey(*)");
+      .select("*, pessoa:pessoas!criancas_pessoa_id_fkey(id, full_name, photo_url)");
 
     if (error) {
       toast({ title: "Erro ao carregar crianças", variant: "destructive" });
@@ -183,9 +185,17 @@ export default function NovaPresencaPage() {
               .filter((c) => presencasExistentes.has(c.pessoa.id))
               .map((crianca) => (
                 <Card key={crianca.id} className="opacity-60">
-                  <CardContent className="p-4">
+                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">{crianca.pessoa.full_name}</span>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={crianca.pessoa.photo_url || undefined} />
+                          <AvatarFallback className="bg-muted text-muted-foreground text-sm">
+                            {crianca.pessoa.full_name?.charAt(0) || 'C'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">{crianca.pessoa.full_name}</span>
+                      </div>
                       <span className="text-xs px-2 py-1 rounded-full bg-chart-1/10 text-chart-1">
                         Já registrada
                       </span>
@@ -209,6 +219,12 @@ export default function NovaPresencaPage() {
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={crianca.pessoa.photo_url || undefined} />
+                      <AvatarFallback className="bg-chart-1/10 text-chart-1 text-sm">
+                        {crianca.pessoa.full_name?.charAt(0) || 'C'}
+                      </AvatarFallback>
+                    </Avatar>
                     <Checkbox
                       checked={presencas[crianca.pessoa.id] ?? false}
                       onCheckedChange={(checked) =>
