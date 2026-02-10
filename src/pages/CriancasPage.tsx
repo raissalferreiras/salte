@@ -1,16 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Baby, Phone, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Baby, Phone, AlertTriangle, Power } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Crianca, Pessoa } from '@/types';
 import { calculateAge, formatPhone } from '@/lib/export';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 interface CriancaWithPessoa extends Crianca {
   pessoa?: Pessoa;
@@ -20,6 +23,7 @@ export default function CriancasPage() {
   const navigate = useNavigate();
   const [criancas, setCriancas] = useState<CriancaWithPessoa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showInactive, setShowInactive] = useState(false);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -31,7 +35,6 @@ export default function CriancasPage() {
             *,
             pessoa:pessoas_public!criancas_pessoa_id_fkey(*)
           `)
-          .eq('is_active', true)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -47,20 +50,28 @@ export default function CriancasPage() {
   }, []);
 
   const filteredCriancas = useMemo(() => {
-    if (!search.trim()) return criancas;
-    const lower = search.toLowerCase();
-    return criancas.filter(
-      (c) =>
-        c.pessoa?.full_name?.toLowerCase().includes(lower) ||
-        c.escola?.toLowerCase().includes(lower)
-    );
-  }, [criancas, search]);
+    let list = criancas;
+    if (!showInactive) {
+      list = list.filter((c) => c.is_active);
+    }
+    if (search.trim()) {
+      const lower = search.toLowerCase();
+      list = list.filter(
+        (c) =>
+          c.pessoa?.full_name?.toLowerCase().includes(lower) ||
+          c.escola?.toLowerCase().includes(lower)
+      );
+    }
+    return list;
+  }, [criancas, search, showInactive]);
+
+  const activeCount = criancas.filter((c) => c.is_active).length;
 
   return (
     <AppLayout>
       <PageHeader
         title="Crianças"
-        subtitle={`${criancas.length} cadastradas - Sementinhas`}
+        subtitle={`${activeCount} ativas de ${criancas.length} - Sementinhas`}
         rightContent={
           <Button
             size="icon"
@@ -82,9 +93,21 @@ export default function CriancasPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 h-11 rounded-xl"
           />
-        </div>
+         </div>
 
-        {/* List */}
+         {/* Show inactive toggle */}
+         <div className="flex items-center gap-2 mb-4">
+           <Switch
+             id="show-inactive"
+             checked={showInactive}
+             onCheckedChange={setShowInactive}
+           />
+           <Label htmlFor="show-inactive" className="text-sm text-muted-foreground cursor-pointer">
+             Mostrar inativas
+           </Label>
+         </div>
+
+         {/* List */}
         <div className="space-y-2">
           {isLoading ? (
             Array.from({ length: 6 }).map((_, i) => (
@@ -118,7 +141,10 @@ export default function CriancasPage() {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-medium truncate">{crianca.pessoa?.full_name}</p>
+                      <p className={cn("font-medium truncate", !crianca.is_active && "text-muted-foreground")}>{crianca.pessoa?.full_name}</p>
+                      {!crianca.is_active && (
+                        <Badge variant="destructive" className="text-[10px]">Inativa</Badge>
+                      )}
                       {crianca.necessidades_especiais && (
                         <AlertTriangle className="h-4 w-4 text-chart-4 flex-shrink-0" />
                       )}
