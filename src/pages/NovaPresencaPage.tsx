@@ -6,13 +6,14 @@ import { useToast } from "@/hooks/use-toast";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Save, Users, CheckCircle } from "lucide-react";
+import { Save, Users, CheckCircle, Search } from "lucide-react";
 import { format } from "date-fns";
 
 interface Crianca {
@@ -31,6 +32,7 @@ export default function NovaPresencaPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [criancas, setCriancas] = useState<Crianca[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [presencas, setPresencas] = useState<Record<string, boolean>>({});
   const [observacoes, setObservacoes] = useState<Record<string, string>>({});
   const [comportamentos, setComportamentos] = useState<Record<string, string>>({});
@@ -138,11 +140,17 @@ export default function NovaPresencaPage() {
     }
   };
 
-  const criancasSemPresenca = criancas.filter(
+  const filteredCriancas = criancas.filter((c) =>
+    c.pessoa.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const criancasSemPresenca = filteredCriancas.filter(
     (c) => !presencasExistentes.has(c.pessoa.id)
   );
+  const criancasComPresenca = filteredCriancas.filter(
+    (c) => presencasExistentes.has(c.pessoa.id)
+  );
   const presentCount = Object.values(presencas).filter(Boolean).length;
-  const totalCount = criancasSemPresenca.length;
+  const totalCount = criancas.filter((c) => !presencasExistentes.has(c.pessoa.id)).length;
 
   return (
     <AppLayout>
@@ -175,16 +183,24 @@ export default function NovaPresencaPage() {
           </CardContent>
         </Card>
 
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar criança pelo nome..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
         {/* Children with existing attendance */}
-        {presencasExistentes.size > 0 && (
+        {criancasComPresenca.length > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-chart-1" />
               Presenças já registradas hoje
             </p>
-            {criancas
-              .filter((c) => presencasExistentes.has(c.pessoa.id))
-              .map((crianca) => (
+            {criancasComPresenca.map((crianca) => (
                 <Card key={crianca.id} className="opacity-60">
                    <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -209,7 +225,7 @@ export default function NovaPresencaPage() {
 
         {/* Children without attendance - can register */}
         <div className="space-y-3">
-          {criancasSemPresenca.length > 0 && presencasExistentes.size > 0 && (
+          {criancasSemPresenca.length > 0 && criancasComPresenca.length > 0 && (
             <p className="text-sm font-medium text-muted-foreground">
               Crianças pendentes
             </p>
