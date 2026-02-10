@@ -50,7 +50,7 @@ export default function NovaPresencaPage() {
   const fetchCriancas = async () => {
     const { data, error } = await supabase
       .from("criancas")
-      .select("*, pessoa:pessoas!criancas_pessoa_id_fkey(id, full_name, photo_url)");
+      .select("*, pessoa:pessoas_public!criancas_pessoa_id_fkey(id, full_name, photo_url)");
 
     if (error) {
       toast({ title: "Erro ao carregar crianças", variant: "destructive" });
