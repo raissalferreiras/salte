@@ -1,0 +1,1 @@
+ALTER TABLE public.criancas ADD COLUMN nome_responsavel text;

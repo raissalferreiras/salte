@@ -30,6 +30,7 @@ export default function EditarCriancaPage() {
     escola: '',
     serie: '',
     turno: 'manha',
+    nome_responsavel: '',
     alergias: '',
     medicamentos: '',
     necessidades_especiais: false,
@@ -61,6 +62,7 @@ export default function EditarCriancaPage() {
         escola: data.escola || '',
         serie: data.serie || '',
         turno: data.turno || 'manha',
+        nome_responsavel: data.nome_responsavel || '',
         alergias: data.alergias || '',
         medicamentos: data.medicamentos || '',
         necessidades_especiais: data.necessidades_especiais || false,
@@ -129,6 +131,7 @@ export default function EditarCriancaPage() {
         escola: formData.escola || null,
         serie: formData.serie || null,
         turno: formData.turno || null,
+        nome_responsavel: formData.nome_responsavel || null,
         alergias: formData.alergias || null,
         medicamentos: formData.medicamentos || null,
         necessidades_especiais: formData.necessidades_especiais,
@@ -211,6 +214,15 @@ export default function EditarCriancaPage() {
               value={formData.escola}
               onChange={(e) => setFormData({ ...formData, escola: e.target.value })}
               placeholder="Nome da escola"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Nome do Responsável</Label>
+            <Input
+              value={formData.nome_responsavel}
+              onChange={(e) => setFormData({ ...formData, nome_responsavel: e.target.value })}
+              placeholder="Nome do responsável pela criança"
             />
           </div>
 
