@@ -32,6 +32,7 @@ export default function NovaCriancaPage() {
     escola: '',
     serie: '',
     turno: 'manha',
+    nome_responsavel: '',
     alergias: '',
     medicamentos: '',
     necessidades_especiais: false,
@@ -124,6 +125,7 @@ export default function NovaCriancaPage() {
       escola: formData.escola || null,
       serie: formData.serie || null,
       turno: formData.turno || null,
+      nome_responsavel: formData.nome_responsavel || null,
       alergias: formData.alergias || null,
       medicamentos: formData.medicamentos || null,
       necessidades_especiais: formData.necessidades_especiais,
@@ -220,6 +222,15 @@ export default function NovaCriancaPage() {
               value={formData.escola}
               onChange={(e) => setFormData({ ...formData, escola: e.target.value })}
               placeholder="Nome da escola"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Nome do Responsável</Label>
+            <Input
+              value={formData.nome_responsavel}
+              onChange={(e) => setFormData({ ...formData, nome_responsavel: e.target.value })}
+              placeholder="Nome do responsável pela criança"
             />
           </div>
 

@@ -265,6 +265,7 @@ export type Database = {
           is_active: boolean
           medicamentos: string | null
           necessidades_especiais: boolean | null
+          nome_responsavel: string | null
           pessoa_id: string
           serie: string | null
           turno: string | null
@@ -279,6 +280,7 @@ export type Database = {
           is_active?: boolean
           medicamentos?: string | null
           necessidades_especiais?: boolean | null
+          nome_responsavel?: string | null
           pessoa_id: string
           serie?: string | null
           turno?: string | null
@@ -293,6 +295,7 @@ export type Database = {
           is_active?: boolean
           medicamentos?: string | null
           necessidades_especiais?: boolean | null
+          nome_responsavel?: string | null
           pessoa_id?: string
           serie?: string | null
           turno?: string | null

@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, differenceInYears, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { School, Clock, AlertCircle, Pill, Trash2, Calendar, Check, X, TrendingUp, Pencil, Power } from 'lucide-react';
+import { School, Clock, AlertCircle, Pill, Trash2, Calendar, Check, X, TrendingUp, Pencil, Power, User } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { Tables } from '@/integrations/supabase/types';
@@ -256,6 +256,20 @@ export default function CriancaDetalhesPage() {
                   {crianca.is_active ? 'Desativar' : 'Reativar'}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {crianca.nome_responsavel && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Responsável
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">{crianca.nome_responsavel}</p>
             </CardContent>
           </Card>
         )}
