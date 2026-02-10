@@ -189,7 +189,7 @@ export default function NovaPresencaPage() {
                    <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
+                        <Avatar className="h-12 w-12">
                           <AvatarImage src={crianca.pessoa.photo_url || undefined} />
                           <AvatarFallback className="bg-muted text-muted-foreground text-sm">
                             {crianca.pessoa.full_name?.charAt(0) || 'C'}
@@ -220,9 +220,9 @@ export default function NovaPresencaPage() {
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
+                    <Avatar className="h-14 w-14">
                       <AvatarImage src={crianca.pessoa.photo_url || undefined} />
-                      <AvatarFallback className="bg-chart-1/10 text-chart-1 text-sm">
+                      <AvatarFallback className="bg-chart-1/10 text-chart-1 text-base font-semibold">
                         {crianca.pessoa.full_name?.charAt(0) || 'C'}
                       </AvatarFallback>
                     </Avatar>
