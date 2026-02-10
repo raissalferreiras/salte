@@ -314,7 +314,7 @@ export default function NovaPresencaPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-20 left-0 right-0 p-4 bg-background border-t">
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-24 md:pb-4 bg-background border-t">
         <Button 
           onClick={handleSubmit} 
           disabled={loading || criancasSemPresenca.length === 0} 
