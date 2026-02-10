@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, subMonths, addMonths, isSameDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Users, Calendar, TrendingUp, Check, X, ClipboardList, Baby } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,7 @@ interface CriancaData {
   pessoa: {
     id: string;
     full_name: string;
+    photo_url: string | null;
   };
 }
 
@@ -68,7 +70,7 @@ export default function PresencasDashboardPage() {
           .order('data', { ascending: true }),
         supabase
           .from('criancas')
-          .select('id, pessoa_id, pessoa:pessoas!criancas_pessoa_id_fkey(id, full_name)')
+          .select('id, pessoa_id, pessoa:pessoas!criancas_pessoa_id_fkey(id, full_name, photo_url)')
       ]);
 
       if (presencasRes.data) setPresencas(presencasRes.data);
@@ -370,6 +372,12 @@ export default function PresencasDashboardPage() {
                       onClick={() => navigate(`/criancas/${crianca.id}`)}
                       className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
                     >
+                      <Avatar className="h-10 w-10 flex-shrink-0">
+                        <AvatarImage src={crianca.pessoa?.photo_url || undefined} />
+                        <AvatarFallback className="bg-chart-1/10 text-chart-1 text-sm">
+                          {crianca.pessoa?.full_name?.charAt(0) || 'C'}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate text-left">{crianca.pessoa?.full_name}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">

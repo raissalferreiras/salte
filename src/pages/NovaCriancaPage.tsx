@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { CameraCapture } from '@/components/CameraCapture';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Pessoa = Tables<'pessoas'>;
@@ -38,6 +39,7 @@ export default function NovaCriancaPage() {
   });
 
   const [createNewPerson, setCreateNewPerson] = useState(true);
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
 
   useEffect(() => {
     async function fetchPessoas() {
@@ -66,6 +68,11 @@ export default function NovaCriancaPage() {
       return;
     }
 
+    if (!photoBlob) {
+      toast.error('A foto da criança é obrigatória');
+      return;
+    }
+
     setIsSaving(true);
 
     let pessoaId = formData.pessoa_id;
@@ -91,6 +98,26 @@ export default function NovaCriancaPage() {
 
       pessoaId = newPessoa.id;
     }
+
+    // Upload photo
+    const fileName = `${pessoaId}-${Date.now()}.jpg`;
+    const { error: uploadError } = await supabase.storage
+      .from('child-photos')
+      .upload(fileName, photoBlob, { contentType: 'image/jpeg', upsert: true });
+
+    if (uploadError) {
+      toast.error('Erro ao enviar foto');
+      console.error(uploadError);
+      setIsSaving(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('child-photos')
+      .getPublicUrl(fileName);
+
+    // Update pessoa with photo_url
+    await supabase.from('pessoas').update({ photo_url: urlData.publicUrl }).eq('id', pessoaId);
     
     const { error } = await supabase.from('criancas').insert({
       pessoa_id: pessoaId,
@@ -180,6 +207,12 @@ export default function NovaCriancaPage() {
               </Select>
             </div>
           )}
+
+          {/* Photo capture */}
+          <div className="space-y-2">
+            <Label>Foto da Criança *</Label>
+            <CameraCapture onCapture={setPhotoBlob} />
+          </div>
 
           <div className="space-y-2">
             <Label>Escola</Label>
