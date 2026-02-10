@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Camera, RotateCcw, Check, X, AlertCircle } from 'lucide-react';
+import { Camera, RotateCcw, Check, X, AlertCircle, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CameraCaptureProps {
@@ -12,6 +12,7 @@ interface CameraCaptureProps {
 export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -86,6 +87,22 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
     startCamera();
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Selecione um arquivo de imagem válido.');
+      return;
+    }
+    setError(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCapturedImage(reader.result as string);
+      onCapture(file);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const displayImage = capturedImage || currentPhotoUrl;
 
   return (
@@ -140,9 +157,21 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
             </Button>
           </>
         ) : (
-          <Button type="button" size="sm" variant="outline" onClick={startCamera}>
-            <Camera className="h-4 w-4 mr-1" /> {displayImage ? 'Trocar foto' : 'Tirar foto'}
-          </Button>
+          <div className="flex gap-2">
+            <Button type="button" size="sm" variant="outline" onClick={startCamera}>
+              <Camera className="h-4 w-4 mr-1" /> {displayImage ? 'Trocar foto' : 'Tirar foto'}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="h-4 w-4 mr-1" /> Enviar
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+          </div>
         )}
       </div>
     </div>
