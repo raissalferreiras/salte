@@ -86,7 +86,7 @@ export default function NovaPresencaPage() {
     const initialPresencas: Record<string, boolean> = {};
     criancas.forEach((c) => {
       if (!existentesSet.has(c.pessoa.id)) {
-        initialPresencas[c.pessoa.id] = true;
+        initialPresencas[c.pessoa.id] = false;
       }
     });
     setPresencas(initialPresencas);
