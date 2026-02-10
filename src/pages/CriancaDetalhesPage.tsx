@@ -16,10 +16,10 @@ import { cn } from '@/lib/utils';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Crianca = Tables<'criancas'>;
-type Pessoa = Tables<'pessoas'>;
+type PessoaPublic = Tables<'pessoas_public'>;
 
 interface CriancaWithPessoa extends Crianca {
-  pessoa?: Pessoa;
+  pessoa?: PessoaPublic;
 }
 
 interface Presenca {
@@ -43,7 +43,7 @@ export default function CriancaDetalhesPage() {
       
       const { data: criancaData, error } = await supabase
         .from('criancas')
-        .select('*, pessoa:pessoas!criancas_pessoa_id_fkey(*)')
+        .select('*, pessoa:pessoas_public!criancas_pessoa_id_fkey(*)')
         .eq('id', id)
         .single();
 

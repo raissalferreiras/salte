@@ -29,7 +29,7 @@ export default function CriancasPage() {
           .from('criancas')
           .select(`
             *,
-            pessoa:pessoas!criancas_pessoa_id_fkey(*)
+            pessoa:pessoas_public!criancas_pessoa_id_fkey(*)
           `)
           .order('created_at', { ascending: false });
 

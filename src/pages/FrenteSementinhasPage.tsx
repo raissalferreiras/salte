@@ -30,7 +30,7 @@ export default function FrenteSementinhasPage() {
         const [criancasRes, presencasRes] = await Promise.all([
           supabase
             .from('criancas')
-            .select(`*, pessoa:pessoas!criancas_pessoa_id_fkey(*)`)
+            .select(`*, pessoa:pessoas_public!criancas_pessoa_id_fkey(*)`)
             .order('created_at', { ascending: false }),
           supabase
             .from('presencas')

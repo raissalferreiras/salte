@@ -70,7 +70,7 @@ export default function PresencasDashboardPage() {
           .order('data', { ascending: true }),
         supabase
           .from('criancas')
-          .select('id, pessoa_id, pessoa:pessoas!criancas_pessoa_id_fkey(id, full_name, photo_url)')
+          .select('id, pessoa_id, pessoa:pessoas_public!criancas_pessoa_id_fkey(id, full_name, photo_url)')
       ]);
 
       if (presencasRes.data) setPresencas(presencasRes.data);

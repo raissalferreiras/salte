@@ -1235,34 +1235,40 @@ export type Database = {
     Views: {
       pessoas_public: {
         Row: {
+          birth_date: string | null
           city: string | null
           created_at: string | null
           full_name: string | null
           id: string | null
           is_active: boolean | null
           neighborhood: string | null
+          phone: string | null
           photo_url: string | null
           state: string | null
           updated_at: string | null
         }
         Insert: {
+          birth_date?: string | null
           city?: string | null
           created_at?: string | null
           full_name?: string | null
           id?: string | null
           is_active?: boolean | null
           neighborhood?: string | null
+          phone?: string | null
           photo_url?: string | null
           state?: string | null
           updated_at?: string | null
         }
         Update: {
+          birth_date?: string | null
           city?: string | null
           created_at?: string | null
           full_name?: string | null
           id?: string | null
           is_active?: boolean | null
           neighborhood?: string | null
+          phone?: string | null
           photo_url?: string | null
           state?: string | null
           updated_at?: string | null
