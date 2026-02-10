@@ -71,6 +71,7 @@ export default function PresencasDashboardPage() {
         supabase
           .from('criancas')
           .select('id, pessoa_id, pessoa:pessoas_public!criancas_pessoa_id_fkey(id, full_name, photo_url)')
+          .eq('is_active', true)
       ]);
 
       if (presencasRes.data) setPresencas(presencasRes.data);

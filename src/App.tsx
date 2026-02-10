@@ -18,6 +18,7 @@ import FamiliaDetalhesPage from "./pages/FamiliaDetalhesPage";
 import CriancasPage from "./pages/CriancasPage";
 import NovaCriancaPage from "./pages/NovaCriancaPage";
 import CriancaDetalhesPage from "./pages/CriancaDetalhesPage";
+import EditarCriancaPage from "./pages/EditarCriancaPage";
 import FrenteSementinhasPage from "./pages/FrenteSementinhasPage";
 import FrenteHistoriasPage from "./pages/FrenteHistoriasPage";
 import FrentePsicologicoPage from "./pages/FrentePsicologicoPage";
@@ -84,6 +85,7 @@ function AppRoutes() {
       <Route path="/criancas" element={<ProtectedRoute><CriancasPage /></ProtectedRoute>} />
       <Route path="/criancas/novo" element={<ProtectedRoute><NovaCriancaPage /></ProtectedRoute>} />
       <Route path="/criancas/:id" element={<ProtectedRoute><CriancaDetalhesPage /></ProtectedRoute>} />
+      <Route path="/criancas/:id/editar" element={<ProtectedRoute><EditarCriancaPage /></ProtectedRoute>} />
       <Route path="/frentes/sementinhas" element={<ProtectedRoute><FrenteSementinhasPage /></ProtectedRoute>} />
       <Route path="/frentes/historias" element={<ProtectedRoute><FrenteHistoriasPage /></ProtectedRoute>} />
       <Route path="/frentes/psicologico" element={<ProtectedRoute><FrentePsicologicoPage /></ProtectedRoute>} />
