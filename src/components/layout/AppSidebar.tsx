@@ -3,6 +3,7 @@ import { Home, Users, Baby, Heart, Calendar, MapPin, BarChart3, Settings, LogOut
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { Separator } from '@/components/ui/separator';
+import logoSalte from '@/assets/logo-salte.png';
 
 const navItems = [
 { path: '/dashboard', label: 'Início', icon: Home },
@@ -25,9 +26,7 @@ export function AppSidebar() {
     <aside className="hidden md:flex flex-col w-60 border-r border-border bg-card/50 h-screen sticky top-0">
       {/* Logo / Brand */}
       <div className="flex items-center gap-3 px-5 h-14 border-b border-border/50">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-          <span className="text-primary-foreground font-bold text-sm">S</span>
-        </div>
+        <img src={logoSalte} alt="Projeto Salte" className="w-8 h-8 rounded-lg object-contain" />
         <span className="font-semibold text-lg">Projeto Salte</span>
       </div>
 
