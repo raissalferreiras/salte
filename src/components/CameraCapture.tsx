@@ -159,6 +159,13 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
             <Button type="button" size="sm" variant="destructive" onClick={stopCamera}>
               <X className="h-4 w-4 mr-1" /> Cancelar
             </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => {
+              stopCamera();
+              setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
+              setTimeout(() => startCamera(), 100);
+            }}>
+              <RotateCcw className="h-4 w-4" />
+            </Button>
             <Button type="button" size="sm" onClick={takePhoto}>
               <Camera className="h-4 w-4 mr-1" /> Capturar
             </Button>
