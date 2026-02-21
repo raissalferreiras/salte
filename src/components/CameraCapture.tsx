@@ -17,6 +17,7 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
   const capturedBlobRef = useRef<Blob | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
 
@@ -112,16 +113,15 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
   };
 
   const confirmPhoto = () => {
-    console.log('[CameraCapture] confirmPhoto: blob=', capturedBlobRef.current?.size);
-    if (!capturedBlobRef.current) {
-      console.log('[CameraCapture] confirmPhoto: NO BLOB AVAILABLE');
-      return;
-    }
+    if (!capturedBlobRef.current) return;
     onCapture(capturedBlobRef.current);
+    setIsConfirmed(true);
   };
 
   const retakePhoto = () => {
     setCapturedImage(null);
+    setIsConfirmed(false);
+    capturedBlobRef.current = null;
     startCamera();
   };
 
@@ -193,7 +193,7 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
               <Camera className="h-4 w-4 mr-1" /> Capturar
             </Button>
           </>
-        ) : capturedImage ? (
+        ) : capturedImage && !isConfirmed ? (
           <>
             <Button type="button" size="sm" variant="outline" onClick={retakePhoto}>
               <RotateCcw className="h-4 w-4 mr-1" /> Tirar outra
@@ -202,6 +202,15 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
               <Check className="h-4 w-4 mr-1" /> Confirmar
             </Button>
           </>
+        ) : isConfirmed ? (
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-sm text-primary flex items-center gap-1">
+              <Check className="h-4 w-4" /> Foto confirmada
+            </span>
+            <Button type="button" size="sm" variant="outline" onClick={retakePhoto}>
+              <RotateCcw className="h-4 w-4 mr-1" /> Trocar foto
+            </Button>
+          </div>
         ) : (
           <div className="flex gap-2">
             <Button type="button" size="sm" variant="outline" onClick={() => startCamera()}>
