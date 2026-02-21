@@ -60,9 +60,11 @@ export default function AuthPage() {
         <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center mb-6 shadow-lg">
           <Heart className="h-10 w-10 text-primary-foreground" />
         </div>
-        <h1 className="text-3xl font-bold text-center mb-2">Sistema Ventosa</h1>
-        <p className="text-muted-foreground text-center">
-          Gestão do Projeto Social
+        <h1 className="text-3xl font-bold text-center mb-2">Gestão Projeto Salte
+        </h1>
+        <p className="text-muted-foreground text-center">Amar, servir e transformar!
+
+
         </p>
       </div>
 
@@ -70,45 +72,43 @@ export default function AuthPage() {
       <div className="px-6 pb-8">
         <div className="bg-card rounded-3xl shadow-lg border border-border/50 p-6">
           <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={cn(
-                'flex-1 py-2.5 text-sm font-medium rounded-xl transition-all',
-                isLogin
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
-              )}
-            >
+            <button onClick={() => setIsLogin(true)} className={cn(
+              'flex-1 py-2.5 text-sm font-medium rounded-xl transition-all',
+              isLogin ?
+              'bg-primary text-primary-foreground' :
+              'bg-muted text-muted-foreground'
+            )}>
+
               Entrar
             </button>
             <button
               onClick={() => setIsLogin(false)}
               className={cn(
                 'flex-1 py-2.5 text-sm font-medium rounded-xl transition-all',
-                !isLogin
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
-              )}
-            >
+                !isLogin ?
+                'bg-primary text-primary-foreground' :
+                'bg-muted text-muted-foreground'
+              )}>
+
               Cadastrar
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
+            {!isLogin &&
+            <div className="space-y-2">
                 <Label htmlFor="fullName">Nome Completo</Label>
                 <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Seu nome completo"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="h-12 rounded-xl"
-                  required={!isLogin}
-                />
+                id="fullName"
+                type="text"
+                placeholder="Seu nome completo"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="h-12 rounded-xl"
+                required={!isLogin} />
+
               </div>
-            )}
+            }
 
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
@@ -119,8 +119,8 @@ export default function AuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 rounded-xl"
-                required
-              />
+                required />
+
             </div>
 
             <div className="space-y-2">
@@ -134,13 +134,13 @@ export default function AuthPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 rounded-xl pr-12"
                   required
-                  minLength={6}
-                />
+                  minLength={6} />
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-                >
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
@@ -149,15 +149,15 @@ export default function AuthPage() {
             <Button
               type="submit"
               className="w-full h-12 rounded-xl text-base font-medium"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : isLogin ? (
-                'Entrar'
-              ) : (
-                'Criar Conta'
-              )}
+              disabled={isLoading}>
+
+              {isLoading ?
+              <Loader2 className="h-5 w-5 animate-spin" /> :
+              isLogin ?
+              'Entrar' :
+
+              'Criar Conta'
+              }
             </Button>
           </form>
         </div>
@@ -169,6 +169,6 @@ export default function AuthPage() {
           Favela Ventosa • Projeto Social
         </p>
       </div>
-    </div>
-  );
+    </div>);
+
 }
