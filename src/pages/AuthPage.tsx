@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import logoSalteAuth from '@/assets/logo-salte-auth.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -57,9 +58,7 @@ export default function AuthPage() {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-12 pb-8">
-        <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center mb-6 shadow-lg">
-          <Heart className="h-10 w-10 text-primary-foreground" />
-        </div>
+        <img src={logoSalteAuth} alt="Projeto Salte" className="w-40 h-40 object-contain mb-2" />
         <h1 className="text-3xl font-bold text-center mb-2">Gestão Projeto Salte
         </h1>
         <p className="text-muted-foreground text-center">Amar, servir e transformar!
