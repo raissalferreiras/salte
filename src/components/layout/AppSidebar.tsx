@@ -26,7 +26,7 @@ export function AppSidebar() {
     <aside className="hidden md:flex flex-col w-60 border-r border-border bg-card/50 h-screen sticky top-0">
       {/* Logo / Brand */}
       <div className="flex items-center gap-3 px-5 h-14 border-b border-border/50">
-        <img src={logoSalte} alt="Projeto Salte" className="w-8 h-8 rounded-lg object-contain" />
+        <img src={logoSalte} alt="Projeto Salte" className="w-10 h-10 object-contain" />
         <span className="font-semibold text-lg">Projeto Salte</span>
       </div>
 
