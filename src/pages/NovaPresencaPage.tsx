@@ -119,7 +119,7 @@ export default function NovaPresencaPage() {
         data,
         presente: presencas[c.pessoa.id] ?? false,
         observacoes: observacoes[c.pessoa.id] || null,
-        comportamento: comportamentos[c.pessoa.id] || null,
+        comportamento: comportamentos[c.pessoa.id] && comportamentos[c.pessoa.id] !== "" ? comportamentos[c.pessoa.id] : null,
         registrado_por: user?.id || null,
       }));
 
@@ -277,7 +277,7 @@ export default function NovaPresencaPage() {
                     <SelectValue placeholder="Comportamento" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="otimo">Ótimo</SelectItem>
+                    <SelectItem value="excelente">Excelente</SelectItem>
                     <SelectItem value="bom">Bom</SelectItem>
                     <SelectItem value="regular">Regular</SelectItem>
                     <SelectItem value="ruim">Ruim</SelectItem>
