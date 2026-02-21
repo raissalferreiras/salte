@@ -116,8 +116,7 @@ export default function ConfiguracoesPage() {
         </div>
 
         {/* Admin section */}
-        {isAdminOrCoordinator && (
-          <div className="bg-card rounded-2xl border border-border/50 overflow-hidden">
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden">
             <p className="text-sm font-medium text-muted-foreground px-4 py-3 border-b border-border/50">
               Administração
             </p>
@@ -153,9 +152,8 @@ export default function ConfiguracoesPage() {
                 <span>Fornecedores</span>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </button>
+          </button>
           </div>
-        )}
 
         {/* Sign out */}
         <AlertDialog>

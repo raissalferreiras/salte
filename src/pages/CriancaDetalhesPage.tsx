@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+
 import { format, differenceInYears, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { School, Clock, AlertCircle, Pill, Trash2, Calendar, Check, X, TrendingUp, Pencil, Power, User } from 'lucide-react';
@@ -45,7 +45,7 @@ interface Presenca {
 export default function CriancaDetalhesPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isAdminOrCoordinator } = useAuth();
+  // All users have full access
   const [crianca, setCrianca] = useState<CriancaWithPessoa | null>(null);
   const [presencas, setPresencas] = useState<Presenca[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -166,34 +166,32 @@ export default function CriancaDetalhesPage() {
         title="Detalhes" 
         showBack
         rightContent={
-          isAdminOrCoordinator ? (
-            <div className="flex items-center gap-1">
-              <Button size="icon" variant="outline" onClick={() => navigate(`/criancas/${id}/editar`)} className="h-9 w-9">
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="icon" variant="outline" className="h-9 w-9">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Excluir criança?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta ação não pode ser desfeita. Todos os dados desta criança serão removidos permanentemente.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                      Excluir
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          ) : undefined
+          <div className="flex items-center gap-1">
+            <Button size="icon" variant="outline" onClick={() => navigate(`/criancas/${id}/editar`)} className="h-9 w-9">
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="icon" variant="outline" className="h-9 w-9">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Excluir criança?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação não pode ser desfeita. Todos os dados desta criança serão removidos permanentemente.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Excluir
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         }
       />
 
@@ -236,8 +234,7 @@ export default function CriancaDetalhesPage() {
         </Card>
 
         {/* Activate / Deactivate */}
-        {isAdminOrCoordinator && (
-          <Card>
+        <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -257,8 +254,7 @@ export default function CriancaDetalhesPage() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        )}
+        </Card>
 
         {crianca.nome_responsavel && (
           <Card>

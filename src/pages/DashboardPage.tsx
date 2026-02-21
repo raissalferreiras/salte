@@ -260,15 +260,13 @@ export default function DashboardPage() {
                 path="/visitas/novo"
                 color="#8B5CF6"
               />
-              {isPsicologa && (
-                <QuickAction
-                  title="Novo Atendimento"
-                  description="Registrar atendimento psicológico"
-                  icon={Brain}
-                  path="/atendimentos/novo"
-                  color="#EC4899"
-                />
-              )}
+              <QuickAction
+                title="Novo Atendimento"
+                description="Registrar atendimento psicológico"
+                icon={Brain}
+                path="/atendimentos/novo"
+                color="#EC4899"
+              />
             </div>
           </div>
         </div>

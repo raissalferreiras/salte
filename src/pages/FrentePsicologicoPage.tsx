@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brain, Plus, Search, Calendar, Users, ChevronRight, Lock } from 'lucide-react';
+import { Brain, Plus, Search, Calendar, Users, ChevronRight } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -20,20 +20,12 @@ interface AtendimentoWithPessoa extends AtendimentoPsicologico {
 
 export default function FrentePsicologicoPage() {
   const navigate = useNavigate();
-  const { user, isPsicologa, isAdminOrCoordinator } = useAuth();
+  const { user } = useAuth();
   const [atendimentos, setAtendimentos] = useState<AtendimentoWithPessoa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  // Check access
-  const hasAccess = isPsicologa || isAdminOrCoordinator;
-
   useEffect(() => {
-    if (!hasAccess) {
-      setIsLoading(false);
-      return;
-    }
-
     const fetchData = async () => {
       try {
         const { data, error } = await supabase
@@ -52,7 +44,7 @@ export default function FrentePsicologicoPage() {
     };
 
     fetchData();
-  }, [hasAccess]);
+  }, []);
 
   const filteredAtendimentos = atendimentos.filter((a) =>
     !search.trim() || a.pessoa?.full_name?.toLowerCase().includes(search.toLowerCase())
@@ -63,21 +55,6 @@ export default function FrentePsicologicoPage() {
   );
 
   const atendimentosAgendados = atendimentos.filter((a) => a.status === 'agendado');
-
-  if (!hasAccess) {
-    return (
-      <AppLayout>
-        <PageHeader title="Atendimento Psicológico" showBack />
-        <div className="px-4 py-12 text-center">
-          <Lock className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Acesso Restrito</h2>
-          <p className="text-muted-foreground">
-            Esta área é exclusiva para profissionais de psicologia.
-          </p>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>

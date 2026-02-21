@@ -19,9 +19,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { isPsicologa, profile, signOut } = useAuth();
 
-  const visibleItems = isPsicologa
-    ? navItems.filter((item) => ['/', '/dashboard', '/calendario', '/relatorios'].includes(item.path))
-    : navItems;
+  const visibleItems = navItems;
 
   return (
     <aside className="hidden md:flex flex-col w-60 border-r border-border bg-card/50 h-screen sticky top-0">
