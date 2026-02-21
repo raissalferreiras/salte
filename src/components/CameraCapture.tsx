@@ -33,15 +33,15 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
     };
   }, [stopCamera]);
 
-  const startCamera = async () => {
+  const startCamera = async (overrideFacingMode?: 'user' | 'environment') => {
     setError(null);
+    const mode = overrideFacingMode ?? facingMode;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 640 }, height: { ideal: 640 } },
+        video: { facingMode: mode, width: { ideal: 640 }, height: { ideal: 640 } },
         audio: false,
       });
       streamRef.current = stream;
-      // Set streaming first so the video element renders in the DOM
       setIsStreaming(true);
       setCapturedImage(null);
     } catch (err: any) {
@@ -160,9 +160,10 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
               <X className="h-4 w-4 mr-1" /> Cancelar
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={() => {
+              const newMode = facingMode === 'environment' ? 'user' : 'environment';
+              setFacingMode(newMode);
               stopCamera();
-              setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
-              setTimeout(() => startCamera(), 100);
+              setTimeout(() => startCamera(newMode), 150);
             }}>
               <RotateCcw className="h-4 w-4" />
             </Button>
@@ -181,7 +182,7 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
           </>
         ) : (
           <div className="flex gap-2">
-            <Button type="button" size="sm" variant="outline" onClick={startCamera}>
+            <Button type="button" size="sm" variant="outline" onClick={() => startCamera()}>
               <Camera className="h-4 w-4 mr-1" /> {displayImage ? 'Trocar foto' : 'Tirar foto'}
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
