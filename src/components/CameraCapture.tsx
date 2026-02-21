@@ -41,16 +41,7 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
         audio: false,
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        // Wait for video metadata to load before playing
-        await new Promise<void>((resolve, reject) => {
-          const video = videoRef.current!;
-          video.onloadedmetadata = () => {
-            video.play().then(resolve).catch(reject);
-          };
-        });
-      }
+      // Set streaming first so the video element renders in the DOM
       setIsStreaming(true);
       setCapturedImage(null);
     } catch (err: any) {
@@ -63,6 +54,20 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
       }
     }
   };
+
+  // Attach the stream to the video element once it's rendered
+  useEffect(() => {
+    if (isStreaming && videoRef.current && streamRef.current) {
+      const video = videoRef.current;
+      video.srcObject = streamRef.current;
+      video.onloadedmetadata = () => {
+        video.play().catch(() => {
+          setError('Erro ao iniciar a câmera.');
+          stopCamera();
+        });
+      };
+    }
+  }, [isStreaming, stopCamera]);
 
   const takePhoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
