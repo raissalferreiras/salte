@@ -43,7 +43,13 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        // Wait for video metadata to load before playing
+        await new Promise<void>((resolve, reject) => {
+          const video = videoRef.current!;
+          video.onloadedmetadata = () => {
+            video.play().then(resolve).catch(reject);
+          };
+        });
       }
       setIsStreaming(true);
       setCapturedImage(null);
@@ -61,6 +67,11 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
   const takePhoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
+    // Ensure video is actually playing with data
+    if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) {
+      setError('Câmera ainda não está pronta. Aguarde um momento e tente novamente.');
+      return;
+    }
     const canvas = canvasRef.current;
     const size = Math.min(video.videoWidth, video.videoHeight);
     canvas.width = 480;
