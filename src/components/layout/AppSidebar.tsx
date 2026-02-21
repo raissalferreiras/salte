@@ -5,14 +5,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Separator } from '@/components/ui/separator';
 
 const navItems = [
-  { path: '/dashboard', label: 'Início', icon: Home },
-  { path: '/pessoas', label: 'Pessoas', icon: Users },
-  { path: '/familias', label: 'Famílias', icon: Heart },
-  { path: '/criancas', label: 'Crianças', icon: Baby },
-  { path: '/calendario', label: 'Agenda', icon: Calendar },
-  { path: '/mapa', label: 'Mapa', icon: MapPin },
-  { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
-];
+{ path: '/dashboard', label: 'Início', icon: Home },
+{ path: '/pessoas', label: 'Pessoas', icon: Users },
+{ path: '/familias', label: 'Famílias', icon: Heart },
+{ path: '/criancas', label: 'Crianças', icon: Baby },
+{ path: '/calendario', label: 'Agenda', icon: Calendar },
+{ path: '/mapa', label: 'Mapa', icon: MapPin },
+{ path: '/relatorios', label: 'Relatórios', icon: BarChart3 }];
+
 
 export function AppSidebar() {
   const location = useLocation();
@@ -28,7 +28,7 @@ export function AppSidebar() {
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
           <span className="text-primary-foreground font-bold text-sm">S</span>
         </div>
-        <span className="font-semibold text-lg">Salte</span>
+        <span className="font-semibold text-lg">Projeto Salte</span>
       </div>
 
       {/* Navigation */}
@@ -43,15 +43,15 @@ export function AppSidebar() {
               onClick={() => navigate(item.path)}
               className={cn(
                 'flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-                isActive
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-              )}
-            >
+                isActive ?
+                'bg-primary/10 text-primary' :
+                'text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}>
+
               <Icon className="h-5 w-5 flex-shrink-0" strokeWidth={isActive ? 2.5 : 2} />
               <span>{item.label}</span>
-            </button>
-          );
+            </button>);
+
         })}
       </nav>
 
@@ -63,30 +63,30 @@ export function AppSidebar() {
           onClick={() => navigate('/configuracoes')}
           className={cn(
             'flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-            location.pathname === '/configuracoes'
-              ? 'bg-primary/10 text-primary'
-              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-          )}
-        >
+            location.pathname === '/configuracoes' ?
+            'bg-primary/10 text-primary' :
+            'text-muted-foreground hover:bg-accent hover:text-foreground'
+          )}>
+
           <Settings className="h-5 w-5 flex-shrink-0" />
           <span>Configurações</span>
         </button>
         <button
           onClick={signOut}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
-        >
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200">
+
           <LogOut className="h-5 w-5 flex-shrink-0" />
           <span>Sair</span>
         </button>
       </div>
 
       {/* User info */}
-      {profile && (
-        <div className="px-5 py-3 border-t border-border/50">
+      {profile &&
+      <div className="px-5 py-3 border-t border-border/50">
           <p className="text-sm font-medium truncate">{profile.full_name}</p>
           <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
         </div>
-      )}
-    </aside>
-  );
+      }
+    </aside>);
+
 }
