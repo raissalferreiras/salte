@@ -92,10 +92,12 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
   };
 
   const confirmPhoto = () => {
-    if (!capturedImage) return;
-    fetch(capturedImage)
-      .then(res => res.blob())
-      .then(blob => onCapture(blob));
+    if (!capturedImage || !canvasRef.current) return;
+    canvasRef.current.toBlob((blob) => {
+      if (blob) {
+        onCapture(blob);
+      }
+    }, 'image/jpeg', 0.8);
   };
 
   const retakePhoto = () => {
