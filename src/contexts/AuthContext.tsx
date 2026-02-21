@@ -116,8 +116,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const hasRole = (role: AppRole) => roles.includes(role);
 
-  const isAdminOrCoordinator = hasRole('admin') || hasRole('coordenador');
-  const isPsicologa = hasRole('psicologa');
+  const isAdminOrCoordinator = true;
+  const isPsicologa = false;
 
   return (
     <AuthContext.Provider

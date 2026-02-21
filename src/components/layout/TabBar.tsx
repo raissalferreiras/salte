@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Users, Baby, Heart, Calendar, MapPin, BarChart3, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
+
 
 const navItems = [
   { path: '/dashboard', label: 'Início', icon: Home },
@@ -16,12 +16,7 @@ const navItems = [
 export function TabBar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isPsicologa } = useAuth();
-
-  // Filter items based on role
-  const visibleItems = isPsicologa
-    ? navItems.filter((item) => ['/', '/dashboard', '/calendario', '/relatorios'].includes(item.path))
-    : navItems;
+  const visibleItems = navItems;
 
   // Show only first 5 items in tab bar, rest in more menu
   const tabItems = visibleItems.slice(0, 5);
