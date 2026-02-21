@@ -1,95 +1,86 @@
 
-# Plano: Unificar Políticas de Acesso Administrativo no Banco de Dados
 
-## Visão Geral
+# Plano: Acesso Total para Todos os Usuarios
 
-Atualmente existem **inconsistências** nas políticas RLS do banco de dados. Algumas tabelas permitem acesso apenas para `admin`, enquanto outras usam `is_admin_or_coordinator()` que inclui tanto `admin` quanto `coordenador`.
+## Resumo
+Atualizar o sistema para que todos os usuarios tenham acesso completo (equivalente ao admin), removendo todas as restricoes de permissao na interface e no banco de dados.
 
-## Problema Identificado
+## Mudancas Necessarias
 
-| Tabela | Política Atual | Problema |
-|--------|----------------|----------|
-| `activity_logs` | `has_role('admin')` | Coordenador não vê logs |
-| `atendimentos_psicologicos` | `has_role('admin')` | Coordenador não acessa atendimentos |
-| `user_roles` | `has_role('admin')` | Coordenador não gerencia roles |
-| `profiles` | `has_role('admin')` | Coordenador não vê perfis de outros |
+### 1. Banco de Dados - Atualizar roles existentes
+- Alterar todos os 10 usuarios com role `voluntario` para `admin`
+- Alterar a funcao `handle_new_user()` para atribuir role `admin` por padrao (em vez de `voluntario`)
 
-## Solução Proposta
+### 2. Frontend - Remover restricoes visuais
 
-Atualizar todas as políticas para usar `is_admin_or_coordinator(auth.uid())` de forma consistente, garantindo que **tanto admin quanto coordenador** tenham os mesmos privilégios administrativos em todo o sistema.
+**`src/contexts/AuthContext.tsx`**
+- Alterar `isAdminOrCoordinator` para retornar sempre `true`
+- Alterar `isPsicologa` para retornar sempre `false` (para nao restringir navegacao)
 
-## Mudanças no Banco de Dados
+**`src/components/layout/AppSidebar.tsx`**
+- Remover filtro de `isPsicologa` que esconde itens do menu
 
-### 1. Tabela `activity_logs`
+**`src/components/layout/TabBar.tsx`**
+- Remover filtro de `isPsicologa` que esconde itens da barra inferior
+
+**`src/pages/ConfiguracoesPage.tsx`**
+- Remover condicional `isAdminOrCoordinator` que esconde secao admin
+
+**`src/pages/CriancaDetalhesPage.tsx`**
+- Remover condicional `isAdminOrCoordinator` que esconde botoes de editar/ativar/desativar
+
+**`src/pages/FrentePsicologicoPage.tsx`**
+- Remover verificacao de acesso `hasAccess`
+
+**`src/pages/DashboardPage.tsx`**
+- Remover condicional `isPsicologa` no QuickAction
+
+### 3. Banco de Dados - RLS policies
+As policies de RLS que usam `is_admin_or_coordinator()` continuarao funcionando corretamente pois todos os usuarios terao role `admin`.
+
+Tabelas afetadas positivamente (acesso completo automatico):
+- `familias` (INSERT/UPDATE/DELETE)
+- `familia_membros`, `familia_frentes`
+- `documentos` (INSERT/DELETE)
+- `crianca_responsaveis`
+- `cestas_basicas`
+- `eventos`, `evento_participantes`, `evento_frentes`, `evento_fornecedores`
+- `reunioes`
+- `fornecedores`, `materiais`
+- `user_roles`
+- `activity_logs` (SELECT)
+- `alertas`
+- `profiles` (SELECT all)
+- `atendimentos_psicologicos`
+
+### Secao Tecnica
+
+**Migracao SQL:**
 ```sql
--- Atualizar policy de SELECT
-DROP POLICY IF EXISTS "Admins can view logs" ON public.activity_logs;
-CREATE POLICY "Admin/Coord can view logs"
-ON public.activity_logs FOR SELECT TO authenticated
-USING (is_admin_or_coordinator(auth.uid()));
+-- Atualizar todos voluntarios para admin
+UPDATE public.user_roles SET role = 'admin' WHERE role = 'voluntario';
+
+-- Alterar funcao handle_new_user para dar admin por padrao
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+BEGIN
+  INSERT INTO public.profiles (user_id, full_name, email)
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email), NEW.email);
+  
+  INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'admin');
+  
+  RETURN NEW;
+END;
+$$;
 ```
 
-### 2. Tabela `atendimentos_psicologicos`
-```sql
--- Atualizar policy ALL e SELECT para incluir coordenador
-DROP POLICY IF EXISTS "Psicologos can manage own atendimentos" ON public.atendimentos_psicologicos;
-DROP POLICY IF EXISTS "Psicologos can view own atendimentos" ON public.atendimentos_psicologicos;
+**AuthContext - simplificacao:**
+- `isAdminOrCoordinator` passa a ser sempre `true`
+- `isPsicologa` passa a ser sempre `false`
 
-CREATE POLICY "Admin/Coord/Psicologa can manage atendimentos"
-ON public.atendimentos_psicologicos FOR ALL TO authenticated
-USING (
-  is_admin_or_coordinator(auth.uid()) OR 
-  (has_role(auth.uid(), 'psicologa') AND profissional_id = auth.uid())
-);
+Isso garante que nenhuma verificacao no frontend bloqueie acesso a funcionalidades.
 
-CREATE POLICY "Admin/Coord/Psicologa can view atendimentos"
-ON public.atendimentos_psicologicos FOR SELECT TO authenticated
-USING (
-  is_admin_or_coordinator(auth.uid()) OR 
-  (has_role(auth.uid(), 'psicologa') AND profissional_id = auth.uid())
-);
-```
-
-### 3. Tabela `user_roles`
-```sql
--- Atualizar policy de gerenciamento de roles
-DROP POLICY IF EXISTS "Admins can manage roles" ON public.user_roles;
-CREATE POLICY "Admin/Coord can manage roles"
-ON public.user_roles FOR ALL TO authenticated
-USING (is_admin_or_coordinator(auth.uid()));
-```
-
-### 4. Tabela `profiles`
-```sql
--- Atualizar policy de visualização
-DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
-CREATE POLICY "Admin/Coord can view all profiles"
-ON public.profiles FOR SELECT TO authenticated
-USING (is_admin_or_coordinator(auth.uid()));
-```
-
-## Resumo das Mudanças
-
-```text
-+---------------------------+--------------------------------+--------------------------------+
-|         Tabela            |        Política Atual          |        Nova Política           |
-+---------------------------+--------------------------------+--------------------------------+
-| activity_logs (SELECT)    | has_role('admin')              | is_admin_or_coordinator()      |
-| atendimentos (ALL/SELECT) | has_role('admin') OR psicologa | is_admin_or_coord OR psicologa |
-| user_roles (ALL)          | has_role('admin')              | is_admin_or_coordinator()      |
-| profiles (SELECT)         | has_role('admin')              | is_admin_or_coordinator()      |
-+---------------------------+--------------------------------+--------------------------------+
-```
-
-## Resultado Esperado
-
-Após a migração:
-- **Admin e Coordenador** terão acesso idêntico a todas as funcionalidades administrativas
-- **Psicólogas** continuam com acesso apenas aos próprios atendimentos
-- **Voluntários** mantêm acesso de leitura a dados não sensíveis
-- O sistema ficará com padrão de acesso **unificado e consistente**
-
-## Arquivos Afetados
-
-- Nova migração SQL em `supabase/migrations/`
-- Nenhuma alteração no código frontend (já usa `isAdminOrCoordinator`)
