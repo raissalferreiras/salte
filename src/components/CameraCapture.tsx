@@ -71,8 +71,12 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
   }, [isStreaming, stopCamera]);
 
   const takePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) {
+      console.log('[CameraCapture] takePhoto: refs missing', { video: !!videoRef.current, canvas: !!canvasRef.current });
+      return;
+    }
     const video = videoRef.current;
+    console.log('[CameraCapture] takePhoto: readyState=', video.readyState, 'videoWidth=', video.videoWidth, 'videoHeight=', video.videoHeight);
     if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) {
       setError('Câmera ainda não está pronta. Aguarde um momento e tente novamente.');
       return;
@@ -86,17 +90,33 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
     const sx = (video.videoWidth - size) / 2;
     const sy = (video.videoHeight - size) / 2;
     ctx.drawImage(video, sx, sy, size, size, 0, 0, 480, 480);
+    
+    // Convert to blob immediately using synchronous dataUrl approach
     const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-    // Store blob immediately so it's available for confirm
-    canvas.toBlob((blob) => {
-      capturedBlobRef.current = blob;
-    }, 'image/jpeg', 0.8);
+    console.log('[CameraCapture] takePhoto: dataUrl length=', dataUrl.length);
+    
+    // Convert dataUrl to blob synchronously
+    const byteString = atob(dataUrl.split(',')[1]);
+    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: mimeString });
+    capturedBlobRef.current = blob;
+    console.log('[CameraCapture] takePhoto: blob size=', blob.size);
+    
     setCapturedImage(dataUrl);
     stopCamera();
   };
 
   const confirmPhoto = () => {
-    if (!capturedBlobRef.current) return;
+    console.log('[CameraCapture] confirmPhoto: blob=', capturedBlobRef.current?.size);
+    if (!capturedBlobRef.current) {
+      console.log('[CameraCapture] confirmPhoto: NO BLOB AVAILABLE');
+      return;
+    }
     onCapture(capturedBlobRef.current);
   };
 
