@@ -14,6 +14,7 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const capturedBlobRef = useRef<Blob | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +73,6 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
   const takePhoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
-    // Ensure video is actually playing with data
     if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) {
       setError('Câmera ainda não está pronta. Aguarde um momento e tente novamente.');
       return;
@@ -87,17 +87,17 @@ export function CameraCapture({ onCapture, currentPhotoUrl, className }: CameraC
     const sy = (video.videoHeight - size) / 2;
     ctx.drawImage(video, sx, sy, size, size, 0, 0, 480, 480);
     const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    // Store blob immediately so it's available for confirm
+    canvas.toBlob((blob) => {
+      capturedBlobRef.current = blob;
+    }, 'image/jpeg', 0.8);
     setCapturedImage(dataUrl);
     stopCamera();
   };
 
   const confirmPhoto = () => {
-    if (!capturedImage || !canvasRef.current) return;
-    canvasRef.current.toBlob((blob) => {
-      if (blob) {
-        onCapture(blob);
-      }
-    }, 'image/jpeg', 0.8);
+    if (!capturedBlobRef.current) return;
+    onCapture(capturedBlobRef.current);
   };
 
   const retakePhoto = () => {
