@@ -70,38 +70,35 @@ export default function FrenteSementinhasPage() {
 
       <div className="px-4 pb-6">
         {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <button
             onClick={() => navigate('/presencas/novo')}
-            className="flex items-center gap-3 p-4 rounded-2xl bg-chart-1/10 border border-chart-1/20 hover:shadow-md transition-all"
+            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-chart-1/10 border border-chart-1/20 hover:shadow-md transition-all text-center"
           >
             <ClipboardList className="h-6 w-6 text-chart-1" />
-            <div className="text-left">
-              <p className="font-medium text-chart-1">Registrar Presença</p>
-              <p className="text-xs text-muted-foreground">Ação de hoje</p>
+            <div>
+              <p className="font-medium text-chart-1 text-sm">Presença</p>
+              <p className="text-xs text-muted-foreground">Registrar</p>
             </div>
           </button>
           <button
             onClick={() => navigate('/presencas/dashboard')}
-            className="flex items-center gap-3 p-4 rounded-2xl bg-chart-2/10 border border-chart-2/20 hover:shadow-md transition-all"
+            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-chart-2/10 border border-chart-2/20 hover:shadow-md transition-all text-center"
           >
             <Calendar className="h-6 w-6 text-chart-2" />
-            <div className="text-left">
-              <p className="font-medium text-chart-2">Dashboard</p>
-              <p className="text-xs text-muted-foreground">Ver estatísticas</p>
+            <div>
+              <p className="font-medium text-chart-2 text-sm">Dashboard</p>
+              <p className="text-xs text-muted-foreground">Estatísticas</p>
             </div>
           </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mb-6">
           <button
             onClick={() => navigate('/criancas')}
-            className="flex items-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/20 hover:shadow-md transition-all"
+            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-primary/10 border border-primary/20 hover:shadow-md transition-all text-center"
           >
             <Baby className="h-6 w-6 text-primary" />
-            <div className="text-left">
-              <p className="font-medium text-primary">Ver Todas</p>
-              <p className="text-xs text-muted-foreground">{criancas.length} crianças</p>
+            <div>
+              <p className="font-medium text-primary text-sm">Crianças</p>
+              <p className="text-xs text-muted-foreground">{criancas.length} total</p>
             </div>
           </button>
         </div>
