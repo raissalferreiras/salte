@@ -104,6 +104,7 @@ export default function AuthPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 className="h-12 rounded-xl"
+                autoComplete="name"
                 required={!isLogin} />
 
               </div>
@@ -118,6 +119,7 @@ export default function AuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 rounded-xl"
+                autoComplete="email"
                 required />
 
             </div>
@@ -132,12 +134,14 @@ export default function AuthPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 rounded-xl pr-12"
+                  autoComplete={isLogin ? 'current-password' : 'new-password'}
                   required
                   minLength={6} />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
 
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

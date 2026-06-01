@@ -85,7 +85,12 @@ export default function EditarCriancaPage() {
     setIsSaving(true);
 
     // Update pessoa
-    const pessoaUpdate: Record<string, unknown> = {
+    const pessoaUpdate: {
+      full_name: string;
+      birth_date: string | null;
+      phone: string | null;
+      photo_url?: string;
+    } = {
       full_name: formData.full_name,
       birth_date: formData.birth_date || null,
       phone: formData.phone || null,
