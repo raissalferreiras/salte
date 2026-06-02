@@ -9,6 +9,8 @@ import { OfflineProvider } from "@/contexts/OfflineContext";
 
 // Pages
 import AuthPage from "./pages/AuthPage";
+import RecuperarSenhaPage from "./pages/RecuperarSenhaPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DashboardPage from "./pages/DashboardPage";
 import PessoasPage from "./pages/PessoasPage";
 import NovaPessoaPage from "./pages/NovaPessoaPage";
@@ -75,6 +77,10 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
+      <Route path="/login" element={<Navigate to="/auth" replace />} />
+      <Route path="/cadastrar" element={<Navigate to="/auth" replace />} />
+      <Route path="/recuperar-senha" element={<PublicRoute><RecuperarSenhaPage /></PublicRoute>} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/pessoas" element={<ProtectedRoute><PessoasPage /></ProtectedRoute>} />
